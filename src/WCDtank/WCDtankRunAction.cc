@@ -29,6 +29,7 @@ WCDtankRunAction::WCDtankRunAction()
 	// in B4Analysis.hh
 	G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
 	analysisManager->SetNtupleMerging(true);
+	void SetNtupleRowWise(G4bool rowWise);
 	//G4cout << "Using " << analysisManager->GetType() << G4endl;
 
 	// Create directories

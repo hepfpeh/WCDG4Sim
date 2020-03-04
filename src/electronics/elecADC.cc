@@ -22,7 +22,8 @@
 elecADC::elecADC(void)
 {
 	ADC_bits = 14;
-	ADC_Vref = 1.0; // en Volts. (GND=0)
+	ADC_Vref = 2.0; // en Volts. (GND=0)
+	ADC_Voffset = 1.0;
 	ADC_Sample_Rate = 125.0; // en MHz.
 	ADC_Samples_per_Pulse = 20;
 	ADC_Trigger_Voltaje = 0.1; // en Volts.
@@ -62,10 +63,10 @@ void elecADC::DigitalizeVoltagePulses( elecWCDtankPMTdata* PMTPulsesData, elecRC
 	Long64_t NumberOfPulses = PMTPulsesData->GetNumberOfPulses();
 //	Long_t NumberOfPulses = VoltagePulseData->size();
 
-	std::vector< Double_t >* ADCmaximum = new std::vector< Double_t >;
-	TH1 *ADCmaxHistAll 		= new TH1D("H1","ADC pulse maximum (All)",100,0, ADC_bins-1);
-	TH1 *ADCmaxHistVert 	= new TH1D("H2","ADC pulse maximum (Verticals)",100,0, ADC_bins-1);
-	TH1 *ADCmaxHistNonVert 	= new TH1D("H3","ADC pulse maximum (Non-Verticals)",100,0, ADC_bins-1);
+	std::vector< Long_t >* ADCmaximumAll = new std::vector< Long_t >;
+	std::vector< Long_t >* ADCmaximumVert = new std::vector< Long_t >;
+	std::vector< Long_t >* ADCmaximumNonVert = new std::vector< Long_t >;
+	//std::vector< Long_t >* ADCcharge = new std::vector< Long_t >;
 
 	for( Long_t Pulse = 0; Pulse < NumberOfPulses; Pulse ++)
 	{
@@ -87,7 +88,8 @@ void elecADC::DigitalizeVoltagePulses( elecWCDtankPMTdata* PMTPulsesData, elecRC
 		Long_t ADC_max = -1;
 
 		bool Trigger_exceeded = false;
-		bool ADC_Vref_exceeded = false;
+		bool ADC_overflow = false;
+		bool ADC_underflow = false;
 
 		Int_t Table_pos = 0;
 //		Int_t Table_size = vect2d_tmp->size();
@@ -109,16 +111,22 @@ void elecADC::DigitalizeVoltagePulses( elecWCDtankPMTdata* PMTPulsesData, elecRC
 
 			Time_array.at(i) = i*Time_increment;
 
-			ADC_Vtmp =  V_n * exp( -( RCequivalentCircuit->GetConst_k() ) * t_cur );
+			ADC_Vtmp =  V_n * exp( -( RCequivalentCircuit->GetConst_k() ) * t_cur ) + ADC_Voffset;
 
-			if ( ADC_Vtmp > ADC_Trigger_Voltaje ) Trigger_exceeded = true;
+			if ( ADC_Vtmp > ( ADC_Trigger_Voltaje + ADC_Voffset )  ) Trigger_exceeded = true;
 
-			if( ADC_Vtmp <= 0)
-				ADC_array.at(i) = 0.0;
-			else if( ADC_Vtmp >= ADC_Vref )
+			//if( ADC_Vtmp <= 0)
+			//	ADC_array.at(i) = 0.0;
+			//else if( ADC_Vtmp >= ADC_Vref )
+			if( ADC_Vtmp >= ADC_Vref )
 			{
 				ADC_array.at(i) = ADC_bins - 1.0;
-				ADC_Vref_exceeded = true;
+				ADC_overflow = true;
+			}
+			else if (  ADC_Vtmp <= 0 )
+			{
+				ADC_array.at(i) = 0.0;
+				ADC_underflow = true;
 			}
 			else
 				ADC_array.at(i) = std::floor( ADC_Vtmp / ADC_Dv );
@@ -136,17 +144,21 @@ void elecADC::DigitalizeVoltagePulses( elecWCDtankPMTdata* PMTPulsesData, elecRC
 //			for(Int_t ii = 0;  ii < ADC_Samples_per_Pulse ; ii++ )
 //				std::cout << ADC_array.at(ii) << std::endl;
 
-			ADCmaximum->push_back(ADC_max);
+			ADCmaximumAll->push_back(ADC_max);
 
-			ADCmaxHistAll->Fill( ADC_max );
+			//ADCmaxHistAll->Fill( ADC_max );
 
 			if( PMTPulsesData->GetPulseOrientation( ) )
-				ADCmaxHistVert->Fill( ADC_max );
+				ADCmaximumVert->push_back(ADC_max);
+				//ADCmaxHistVert->Fill( ADC_max );
 			else
-				ADCmaxHistNonVert->Fill( ADC_max );
+				ADCmaximumNonVert->push_back(ADC_max);
+				//ADCmaxHistNonVert->Fill( ADC_max );
 
-			if ( ADC_Vref_exceeded )
-				std::cout << "\r" << std::setw(8) << std::setfill('0') << Pulse << ": ADC_Vref exceeded" << std::endl;
+			if ( ADC_overflow )
+				std::cout << "\r" << std::setw(8) << std::setfill('0') << Pulse << ": ADC_overflow" << std::endl;
+			if ( ADC_underflow )
+				std::cout << "\r" << std::setw(8) << std::setfill('0') << Pulse << ": ADC_undeflow" << std::endl;
 
 		}
 		else
@@ -156,9 +168,28 @@ void elecADC::DigitalizeVoltagePulses( elecWCDtankPMTdata* PMTPulsesData, elecRC
 //			std::cout << "================================" << std::endl;
 		}
 	}
+
+	Int_t histll = (Int_t)*std::min_element(ADCmaximumAll->begin(), ADCmaximumAll->end());
+	Int_t histul = (Int_t)*std::max_element(ADCmaximumAll->begin(), ADCmaximumAll->end());
 	std::cout << "\r********************************" << std::endl;
-	std::cout << "Size of ADCmaximum: " << ADCmaximum->size() << std::endl;
+	std::cout << "Size of ADCmaximum: " << ADCmaximumAll->size() << std::endl;
+	std::cout << "Min of ADCmaximun: " << histll << std::endl;
+	std::cout << "Max of ADCmaximun: " << histul << std::endl;
 	std::cout << "********************************" << std::endl;
+
+	TH1 *ADCmaxHistAll 		= new TH1D("H1","ADC pulse maximum (All)",100,histll, histul);
+	TH1 *ADCmaxHistVert 	= new TH1D("H2","ADC pulse maximum (Verticals)",100,histll, histul);
+	TH1 *ADCmaxHistNonVert 	= new TH1D("H3","ADC pulse maximum (Non-Verticals)",100,histll, histul);
+
+	for( auto i: *ADCmaximumAll )
+		ADCmaxHistAll->Fill( i );
+	
+	for( auto i: *ADCmaximumVert )
+		ADCmaxHistVert->Fill( i );
+	
+	for( auto i: *ADCmaximumNonVert )
+		ADCmaxHistNonVert->Fill( i );
+
 
 	TCanvas *ShowHists = new TCanvas("Algo", "otro", 600, 400);
 //	ShowHists->Divide(1,3);

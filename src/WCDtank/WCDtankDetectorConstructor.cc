@@ -30,19 +30,23 @@ WCDtankDetectorConstruction::WCDtankDetectorConstruction()
 {
 
 	// World cube (world)
-	WorldCube_SizeHalf	= 1.50*m;
+	WorldCube_SizeHalf	= 4.00*m;
 
 	// Tyvek tube
 	TyvekTube_innerRadious	= 0.00 *cm;
-	TyvekTube_outerRadious	= 25.05 *cm;
-	TyvekTube_halfHeight	= 30.05*cm;
+	//TyvekTube_outerRadious	= 57.55 *cm; /* Medidas del tanque rotoplast */
+	//TyvekTube_halfHeight	= 55.05*cm;    /* Medidas del tanque rotoplast */
+	TyvekTube_outerRadious	= 25.05 *cm;  /* Medidas del tonel */
+	TyvekTube_halfHeight	= 30.05*cm;     /* Medidas del tonel */
 	TyvekTube_startAngle	= 0.00 *deg;
 	TyvekTube_spannAngle	= 360  *deg;
 
 	// Water tube
 	WaterTube_innerRadious	= 0.00 *cm;
-	WaterTube_outerRadious	= 25.0 *cm;
-	WaterTube_halfHeight	= 30.0*cm;
+	//WaterTube_outerRadious	= 57.50 *cm;  /* Medidas del tanque rotoplast */
+	//WaterTube_halfHeight	= 55.0*cm;      /* Medidas del tanque rotoplast */
+	WaterTube_outerRadious	= 25.0 *cm;    /* Medidas del tonel */
+	WaterTube_halfHeight	= 30.0*cm;       /* Medidas del tonel */
 	WaterTube_startAngle	= 0.00 *deg;
 	WaterTube_spannAngle	= 360  *deg;
 

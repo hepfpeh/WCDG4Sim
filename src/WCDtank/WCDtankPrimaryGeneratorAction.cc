@@ -122,74 +122,86 @@ void WCDtankPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	   * Se generan los siguientes numeros aleatorios uniformentente distribuidos
 	   *
 	   * cil_r 		: coordenada cilindrica r en el rango 0 <= r <= WaterTube_radius
-	   * cil_z 		: coordenada cilindrica z en el rango -G4double WaterTube_halfHeight <= z <= +G4double WaterTube_halfHeight
+	   * cil_z 		: coordenada cilindrica z en el rango -WaterTube_halfHeight <= z <= +WaterTube_halfHeight
 	   * cil_phi	: coordenada cilindrica phi en el rango 0 <= phi <= 2pi
 	   *
 	   * Las coordenadas cilindricas son de un punto dentro del volumen de agua en el que pasara la particula.
+		 * (Punto P)
 	   *
 	   */
 
 	  G4double cil_r 		= ( G4UniformRand() * WaterTube_radius );
 	  G4double cil_z 		= ( ( G4UniformRand() - 0.5 ) * WaterTube_halfHeight );
-	  G4double cil_phi		= ( G4UniformRand() * twopi );
+	  G4double cil_phi	= ( G4UniformRand() * twopi );
 
-	  /*
+		/*
+	   * Pistola de particulas
+	   * =====================
 	   *
-	   * ang_theta	: angulo azimutal theta de la particula incidente en el rango 0 <= theta <= pi/2
+	   * La pistola de particulas (ParticleGun) se coloca a una distancia constante a partir del 
+		 * punto interno por donde pasa la particula (P). Se genera un vector e, que medido a partir
+		 * de P inicara donde se coloca la pistola. Las componentes esfericas de e son:
+		 * 
+		 * e_r     : coordenada radial de e (magnitud). Esta es constante.
+		 * e_phi   : coordenada azimutal de e. Generada aleatoriamente en el rango 0 <= phi <= 2pi
+		 * e_theta : coordenada cenital de e. Este es el angulo que determina la direccion de
+		 *           la particula incidente. Se distribull con cos^2.
 	   *
-	   * El angulo azimutal se distribulle con cos^2.
-	   *
-	   */
+		 */
+		
 
-	  G4double ang_theta	= CosSqrDistRand();
+	  G4double e_r      = 3.00*m;
+		G4double e_phi	  = ( G4UniformRand() * twopi );
+	  G4double e_theta	= CosSqrDistRand();
 
-	  /*
+		/*
 	   * Muones verticales
 	   * =================
 	   *
 	   * Se consideran muones verticales a aquellos que entran por la tapa superior del cilindro de agua y salen por
 	   * la inferior. La condicion que se debe verificar para esto es que ang_theta < min( theta_c0, theta_c1 ), donde
-	   * theta_c0, theta_c1 son angulos criticos que dependen de las dimenciones del cilindro de agua y de las coordenadas
-	   * cilindricas cil_r y cil_z.
+	   * theta_c0, theta_c1 son angulos criticos que dependen de las dimenciones del cilindro de agua, las coordenadas
+	   * internas por donde pasa la particula (cil_r, cil_z, cil_phi) y de las coordenadas del punto de disparo e.
 	   *
 	   */
 
-	  G4double theta_c0 = std::atan( ( WaterTube_radius - cil_r ) / ( WaterTube_halfHeight - cil_z ) );
-	  G4double theta_c1 = std::atan( ( WaterTube_radius + cil_r ) / ( WaterTube_halfHeight + cil_z ) );
+		G4double ang_beta = std::asin( (cil_r/WaterTube_radius)*std::sin(cil_phi-e_phi) );
+		G4double wp = WaterTube_radius*std::cos(ang_beta) - cil_r*std::cos(cil_phi-e_phi);
+		G4double wm = WaterTube_radius*std::cos(ang_beta) + cil_r*std::cos(cil_phi-e_phi);
+	  G4double theta_c0 = std::atan( wp/(WaterTube_halfHeight - cil_z) );
+	  G4double theta_c1 = std::atan( wm/(2*WaterTube_halfHeight - cil_z) );
 
 	  G4double theta_crit = ( (theta_c0 < theta_c1 )? theta_c0 : theta_c1 );
 
 	  switch( ParticleDirection )
 	  {
 	  	  case Vertical	:
-	  		while ( ang_theta > theta_crit )
-	  					  ang_theta	= CosSqrDistRand();
-	  		PrimaryParticleDirectionIsVertical = TRUE;
-	  		break;
+					while ( e_theta > theta_crit )
+									e_theta	= CosSqrDistRand();
+					PrimaryParticleDirectionIsVertical = TRUE;
+	  			break;
 	  	  case NonVertical :
-			while ( ang_theta < theta_crit )
-						  ang_theta	= CosSqrDistRand();
-			PrimaryParticleDirectionIsVertical = FALSE;
-			break;
+					while ( e_theta < theta_crit )
+									e_theta	= CosSqrDistRand();
+					PrimaryParticleDirectionIsVertical = FALSE;
+					break;
 	  	  case All :
-			if ( ang_theta < theta_crit )
-				PrimaryParticleDirectionIsVertical = TRUE;
-			else
-				PrimaryParticleDirectionIsVertical = FALSE;
-			break;
+					if ( e_theta < theta_crit )
+						PrimaryParticleDirectionIsVertical = TRUE;
+					else
+						PrimaryParticleDirectionIsVertical = FALSE;
+					break;
 	  }
 
-	  ParticleAzimuthAngle = ang_theta;
+	  ParticleAzimuthAngle = e_theta;
 
-	  /*
-	   * Coordenadas de la pistola de particulas
-	   * =======================================
-	   *
-	   * La pistola de particulas (ParticleGun) se coloca sobre una semiesfera que rodea la parte superior del cilindro de agua y lanza
-	   * las particulas hacia este.
-	   *
-	   * ParticleGun_Sphere_radius	: Radio de la semiesfera donde se coloca la pistola.
-	   *
+		/*
+		 * Coordenadas de la pistola de particulas
+		 * =======================================
+		 *  
+		 * A partir de la suma vectorial de P y e, se determinan las cooedenadas cartesianas
+		 * para la pistola:
+		 * 
 	   * ParticleGun_xCoordinate	: coordenada x de la pistola.
 	   * ParticleGun_yCoordinate	: coordenada y de la pistola.
 	   * ParticleGun_zCorrdinate	: coordenada z de la pistola.
@@ -200,36 +212,21 @@ void WCDtankPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	   *
 	   */
 
-	  G4double ParticleGun_Sphere_radius = 1.00*m;
-
-	  if ( ParticleGun_Sphere_radius > WorldBox_halfSize ) {
-		G4ExceptionDescription msg;
-		msg << "Particle can not be throw from outside the world!.\n";
-		msg << "Perhaps you have changed geometry.";
-		G4Exception("WCDtankPrimaryGeneratorAction::GeneratePrimaries()",
-		 "MyCode0003",JustWarning,msg);
+	  G4double ParticleGun_xCoordinate = cil_r*std::sin(cil_phi) + e_r*std::sin(e_theta)*std::sin(e_phi);
+	  G4double ParticleGun_yCoordinate = cil_r*std::cos(cil_phi) + e_r*std::sin(e_theta)*std::cos(e_phi);
+	  G4double ParticleGun_zCoordinate = cil_z + e_r*std::cos(e_theta);
+		
+		if ( ( ParticleGun_xCoordinate > WorldBox_halfSize ) || ( ParticleGun_yCoordinate > WorldBox_halfSize ) || ( ParticleGun_zCoordinate > WorldBox_halfSize ) ) {
+			G4ExceptionDescription msg;
+			msg << "Particle can not be throw from outside the world!.\n";
+			msg << "Perhaps you have changed geometry.";
+			G4Exception("WCDtankPrimaryGeneratorAction::GeneratePrimaries()",
+			"MyCode0003",JustWarning,msg);
 	  }
-
-	  G4double SinPhi = std::sin( cil_phi );
-	  G4double CosPhi = std::cos( cil_phi );
-
-	  G4double SinTheta = std::sin( ang_theta );
-	  G4double CosTheta = std::cos( ang_theta );
-
-	  G4double SinAlpha = ( cil_r * CosTheta - cil_z * SinTheta ) / ParticleGun_Sphere_radius;
-	  G4double CosAlpha = std::sqrt( 1.0 - SinAlpha*SinAlpha );
-
-	  G4double SinVarTheta = SinAlpha * CosTheta + CosAlpha * SinTheta;
-	  G4double CosVarTheta = CosAlpha * CosTheta - SinAlpha * SinTheta;
-
-	  G4double ParticleGun_xCoordinate = ParticleGun_Sphere_radius * SinVarTheta * CosPhi;
-	  G4double ParticleGun_yCoordinate = ParticleGun_Sphere_radius * SinVarTheta * SinPhi;
-	  G4double ParticleGun_zCoordinate = ParticleGun_Sphere_radius * CosVarTheta;
-
-	  G4double ParticleGun_xDirection = - SinTheta * CosPhi;
-	  G4double ParticleGun_yDirection = - SinTheta * SinPhi;
-	  G4double ParticleGun_zDirection = - CosTheta;
-
+	  
+		G4double ParticleGun_xDirection = - std::sin(e_theta)*std::sin(e_phi);
+	  G4double ParticleGun_yDirection = - std::sin(e_theta)*std::cos(e_phi);
+	  G4double ParticleGun_zDirection = - std::cos(e_theta);
 
 	  fParticleGun->SetParticlePosition( G4ThreeVector( ParticleGun_xCoordinate , ParticleGun_yCoordinate , ParticleGun_zCoordinate ) );
 	  fParticleGun->SetParticleMomentumDirection( G4ThreeVector( ParticleGun_xDirection , ParticleGun_yDirection , ParticleGun_zDirection ) );

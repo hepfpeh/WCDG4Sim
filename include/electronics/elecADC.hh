@@ -28,6 +28,7 @@ public:
 private:
 	Int_t		ADC_bits;
 	Double_t	ADC_Vref;
+	Double_t    ADC_Voffset;
 	Double_t	ADC_Sample_Rate;
 	Int_t		ADC_Samples_per_Pulse;
 	Double_t	ADC_Trigger_Voltaje;

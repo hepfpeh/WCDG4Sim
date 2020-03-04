@@ -20,6 +20,8 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "Rtypes.h"
+#include "TBrowser.h"
+#include "TROOT.h"
 
 // Geant4
 
@@ -46,7 +48,18 @@ void elecWCDtankPMTdata::LoadRootFile( const char* RootFileName)
 {
 	TFile *RootFile = new TFile( RootFileName );
 	PMTdata = (TTree*)RootFile->Get("WCDtank;1");
+
+	std::cout << "Ramas en " << RootFileName << ": " << PMTdata->GetListOfBranches()->GetEntries() << std::endl;
+	PMTdata->SetBranchAddress("Primary_Energy",		&Primary_Energy);
+	PMTdata->SetBranchAddress("Azimuth_angle",		&Cenit_angle);
+	PMTdata->SetBranchAddress("Direction",			&Direction);
+	PMTdata->SetBranchAddress("Deposited_Energy",	&Deposited_Energy);
+	PMTdata->SetBranchAddress("Track_Length",		&Track_Length);
+	PMTdata->SetBranchAddress("Photon_Count",		&Photon_Count);
+	PMTdata->SetBranchAddress("Photon_Arrival_Time",&PulseTimeData);
+
 	Entries = PMTdata->GetEntriesFast();
+
 }
 
 void elecWCDtankPMTdata::SetPulse( Long64_t PulseNumber )
@@ -55,16 +68,17 @@ void elecWCDtankPMTdata::SetPulse( Long64_t PulseNumber )
 		PulseTimeData = new std::vector < Double_t >;
 
 //	Double_t tmp = 0;
+//	PMTdata->SetBranchAddress("Direction",			&tmp);
 
+/*
 	PMTdata->SetBranchAddress("Primary_Energy",		&Primary_Energy);
 	PMTdata->SetBranchAddress("Azimuth_angle",		&Cenit_angle);
 	PMTdata->SetBranchAddress("Direction",			&Direction);
-//	PMTdata->SetBranchAddress("Direction",			&tmp);
 	PMTdata->SetBranchAddress("Deposited_Energy",	&Deposited_Energy);
 	PMTdata->SetBranchAddress("Track_Length",		&Track_Length);
 	PMTdata->SetBranchAddress("Photon_Count",		&Photon_Count);
 	PMTdata->SetBranchAddress("Photon_Arrival_Time",&PulseTimeData);
-
+*/
 
 	if (PulseNumber < Entries ) PMTdata->GetEntry(PulseNumber);
 	else {

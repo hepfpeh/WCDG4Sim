@@ -33,6 +33,11 @@ find_package(ROOT REQUIRED COMPONENTS RIO Net)
 #include(${ROOT_USE_FILE})
 #include($ENV{ROOTSYS}/share/root/cmake/modules/RootNewMacros.cmake)
 
+#----------------------------------------------------------------------------
+#  Find boost libraries
+
+#find_package(boost REQUIRED)
+
 cmake_policy(SET CMP0042 NEW)
 
 
@@ -43,7 +48,7 @@ include_directories(${PROJECT_SOURCE_DIR}/include/WCDtank
                     ${PROJECT_SOURCE_DIR}/include/electronics
                     ${PROJECT_SOURCE_DIR}/include/cla
                     ${Geant4_INCLUDE_DIR}
-                    ${ROOT_INCLUDE_DIR}
+                    ${ROOT_INCLUDE_DIRS}
                    )
 file(GLOB W_sources ${PROJECT_SOURCE_DIR}/src/WCDtank/*.cc)
 file(GLOB W_headers ${PROJECT_SOURCE_DIR}/include/WCDtank/*.hh)
