@@ -26,7 +26,7 @@ elecADC::elecADC(void)
 	ADC_Voffset = 1.0;
 	ADC_Sample_Rate = 125.0; // en MHz.
 	ADC_Samples_per_Pulse = 20;
-	ADC_Trigger_Voltaje = 0.1; // en Volts.
+	ADC_Trigger_Voltaje = 0.003; // en Volts.
 	ADC_Trigger_Sample_Offset = 5;
 }
 
@@ -36,9 +36,11 @@ elecADC::~elecADC(void)
 void elecADC::DigitalizeVoltagePulses( elecWCDtankPMTdata* PMTPulsesData, elecRCequivalent* RCequivalentCircuit, elecADCoutput Output)
 {
 
-	elecDataTable* VoltagePulseData = new elecDataTable();
+//	elecDataTable* VoltagePulseData = new elecDataTable();
+	elecPulseCollection* VoltagePulseData = new elecPulseCollection();
 
 //	RCequivalentCircuit->PMTPulseVoltage(PMTPulsesData, VoltagePulsesData);
+	RCequivalentCircuit->PMTPulseVoltage(PMTPulsesData, VoltagePulseData);
 
 	int argc = 1;
 	char* argv[] = { (char*)"elec" };
@@ -73,8 +75,8 @@ void elecADC::DigitalizeVoltagePulses( elecWCDtankPMTdata* PMTPulsesData, elecRC
 
 		PMTPulsesData->SetPulse( Pulse );
 
-		VoltagePulseData->clear();
-		RCequivalentCircuit->PMTPulseVoltage(PMTPulsesData, VoltagePulseData);
+//		VoltagePulseData->clear();
+//		RCequivalentCircuit->PMTPulseVoltage(PMTPulsesData, VoltagePulseData);
 
 		std::fill (Time_array.begin(),Time_array.end(),0.0);
 		std::fill (ADC_array.begin(),ADC_array.end(),0.0);
@@ -82,7 +84,8 @@ void elecADC::DigitalizeVoltagePulses( elecWCDtankPMTdata* PMTPulsesData, elecRC
 //		vect2d_tmp = &(VoltagePulsesData->at( Pulse ));
 
 //		Double_t t_cur = (vect2d_tmp->at( 0 )).at(0);
-		Double_t t_cur = (VoltagePulseData->at( 0 )).at(0);
+//		Double_t t_cur = (VoltagePulseData->at( 0 )).at(0);
+		Double_t t_cur = ((VoltagePulseData->at( Pulse )).at(0)).Time;
 		Double_t V_n=0;
 
 		Long_t ADC_max = -1;
@@ -93,7 +96,8 @@ void elecADC::DigitalizeVoltagePulses( elecWCDtankPMTdata* PMTPulsesData, elecRC
 
 		Int_t Table_pos = 0;
 //		Int_t Table_size = vect2d_tmp->size();
-		Int_t Table_size = VoltagePulseData->size();
+//		Int_t Table_size = VoltagePulseData->size();
+		Int_t Table_size = (VoltagePulseData->at( Pulse )).size();
 
 		for( short i = 0; i < ( ADC_Trigger_Sample_Offset - 1 ); i++)
 			Time_array.at(i) = i*Time_increment;
@@ -103,11 +107,14 @@ void elecADC::DigitalizeVoltagePulses( elecWCDtankPMTdata* PMTPulsesData, elecRC
 		{
 //			while( ( (vect2d_tmp->at( Table_pos )).at(0) < t_cur ) && ( Table_pos < ( Table_size - 1 ) ) )
 //				Table_pos++;
-			while( ( (VoltagePulseData->at( Table_pos )).at(0) < t_cur ) && ( Table_pos < ( Table_size - 1 ) ) )
+//			while( ( (VoltagePulseData->at( Table_pos )).at(0) < t_cur ) && ( Table_pos < ( Table_size - 1 ) ) )
+//				Table_pos++;
+			while( ( (VoltagePulseData->at( Pulse ).at( Table_pos )).Time < t_cur ) && ( Table_pos < ( Table_size - 1 ) ) )
 				Table_pos++;
 
 //			V_n = (vect2d_tmp->at( Table_pos )).at(1);
-			V_n = (VoltagePulseData->at( Table_pos )).at(1);
+//			V_n = (VoltagePulseData->at( Table_pos )).at(1);
+			V_n = (VoltagePulseData->at( Pulse ).at( Table_pos )).Voltage;
 
 			Time_array.at(i) = i*Time_increment;
 
@@ -192,18 +199,18 @@ void elecADC::DigitalizeVoltagePulses( elecWCDtankPMTdata* PMTPulsesData, elecRC
 
 
 	TCanvas *ShowHists = new TCanvas("Algo", "otro", 600, 400);
-//	ShowHists->Divide(1,3);
+	ShowHists->Divide(1,3);
 
-//	ShowHists->cd(1);
+	ShowHists->cd(1);
 	ADCmaxHistAll->Draw();
 	ShowHists->Update();
 
-//	ShowHists->cd(2);
+	ShowHists->cd(2);
 	ADCmaxHistVert->SetLineColor(kRed);
 	ADCmaxHistVert->Draw("same");
 	ShowHists->Update();
 
-//	ShowHists->cd(3);
+	ShowHists->cd(3);
 	ADCmaxHistNonVert->SetLineColor(kGreen);
 	ADCmaxHistNonVert->Draw("same");
 	ShowHists->Update();

@@ -22,7 +22,8 @@ elecRCequivalent::elecRCequivalent(void)
 elecRCequivalent::~elecRCequivalent(void)
 {}
 
-void elecRCequivalent::PMTPulseVoltage(elecWCDtankPMTdata* PMTdata, elecDataTable* PMTPulseVoltageData)
+//void elecRCequivalent::PMTPulseVoltage(elecWCDtankPMTdata* PMTdata, elecDataTable* PMTPulseVoltageData)
+void elecRCequivalent::PMTPulseVoltage(elecWCDtankPMTdata* PMTdata, elecPulseCollection* PMTPulseVoltageData)
 {
 	Double_t Dep_q = 1.6e-13;								// en C. ( se fija como e x 10^6)
 
@@ -31,14 +32,16 @@ void elecRCequivalent::PMTPulseVoltage(elecWCDtankPMTdata* PMTdata, elecDataTabl
 //	std::vector<Double_t>* PulseData = new std::vector<Double_t>();
 	std::vector<Double_t>* PulseData;
 
-//	Long64_t DataEntries = PMTdata->GetNumberOfPulses();
+	Long64_t DataEntries = PMTdata->GetNumberOfPulses();
 
 //	std::vector < std::vector<Double_t> > *vect2d_tmp = new std::vector < std::vector<Double_t> >();
-	std::vector<Double_t> *vect1d_tmp = new std::vector<Double_t>(2);
+//	std::vector<Double_t> *vect1d_tmp = new std::vector<Double_t>(2);
+	elecSignalPoint *PMTPSPoint = new elecSignalPoint;
+	elecPulseSignal *PMTPulse = new elecPulseSignal;
 
-//	for( Long64_t PulseNumber = 0; PulseNumber < DataEntries; PulseNumber++)
-//	{
-//		PMTdata->SetPulse( PulseNumber );
+	for( Long64_t PulseNumber = 0; PulseNumber < DataEntries; PulseNumber++)
+	{
+		PMTdata->SetPulse( PulseNumber );
 		PulseData = PMTdata->GetPulseTimeData();
 
 		Int_t PulseDataEntries = PulseData->size();
@@ -51,13 +54,17 @@ void elecRCequivalent::PMTPulseVoltage(elecWCDtankPMTdata* PMTdata, elecDataTabl
 
 //		std::cout << "Pulse: " << PulseNumber << " Photon count: "<< PulseDataEntries  << std::endl;
 
-		vect1d_tmp->push_back(t_cur);
-		vect1d_tmp->push_back(V_cur);
+//		vect1d_tmp->push_back(t_cur);
+//		vect1d_tmp->push_back(V_cur);
+		PMTPSPoint->Time = t_cur;
+		PMTPSPoint->Voltage = V_cur;
 
 //		vect2d_tmp->push_back( *vect1d_tmp );
-		PMTPulseVoltageData->push_back( *vect1d_tmp );
+//		PMTPulseVoltageData->push_back( *vect1d_tmp );
+		PMTPulse->push_back( *PMTPSPoint );
 
-		vect1d_tmp->clear();
+		//vect1d_tmp->clear();
+
 
 		t_ant = t_cur;
 		A_ant = A_cur;
@@ -67,19 +74,24 @@ void elecRCequivalent::PMTPulseVoltage(elecWCDtankPMTdata* PMTdata, elecDataTabl
 			t_cur = PulseData->at( i );
 			A_cur = 1.0 + A_ant * exp( -Const_k * (t_cur - t_ant) );
 			V_cur = 1 / ( Circuit_C * 1.0e-9 ) * Dep_q * A_cur * exp( Const_k * t_cur );
-			vect1d_tmp->push_back(t_cur);
-			vect1d_tmp->push_back(V_cur);
-			// std::cout << "Pulse: " << PulseNumber << " Photon: "<< i << " Time: " << t_cur << " V_cur: "<< A_cur << std::endl;
+			//vect1d_tmp->push_back(t_cur);
+			//vect1d_tmp->push_back(V_cur);
+			PMTPSPoint->Time = t_cur;
+			PMTPSPoint->Voltage = V_cur;
+//			std::cout << "Pulse: " << PulseNumber << " Photon: "<< i << " Time: " << t_cur << " V_cur: "<< A_cur << std::endl;
 //			vect2d_tmp->push_back(*vect1d_tmp);
-			PMTPulseVoltageData->push_back(*vect1d_tmp);
-			vect1d_tmp->clear();
+			//PMTPulseVoltageData->push_back(*vect1d_tmp);
+			//vect1d_tmp->clear();
+			PMTPulse->push_back( *PMTPSPoint );
 
 			t_ant = t_cur;
 			A_ant = A_cur;
-	}
+		}
 //
 //		PMTPulseVoltageData->push_back(*vect2d_tmp);
+		PMTPulseVoltageData->push_back(*PMTPulse);
 
 //		vect2d_tmp->clear();
-//	}
+		PMTPulse->clear();
+	}
 }

@@ -25,6 +25,13 @@
 typedef std::vector < std::vector< std::vector <Double_t> > > elecDataTable3;
 typedef std::vector < std::vector <Double_t> > elecDataTable;
 
+typedef struct elecSignalPoint_s { 
+    Double_t Time;
+    Double_t Voltage;
+} elecSignalPoint;
+typedef std::vector < elecSignalPoint > elecPulseSignal;
+typedef std::vector < elecPulseSignal > elecPulseCollection;
+
 
 
 #endif /* INCLUDE_ELECTRONICS_ELECTYPES_HH_ */

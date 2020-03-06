@@ -19,7 +19,8 @@ public:
 	elecRCequivalent(void);
 	~elecRCequivalent(void);
 
-	void PMTPulseVoltage(elecWCDtankPMTdata* PMTdata, elecDataTable* PMTPulseVoltageData);
+	//void PMTPulseVoltage(elecWCDtankPMTdata* PMTdata, elecDataTable* PMTPulseVoltageData);
+	void PMTPulseVoltage(elecWCDtankPMTdata* PMTdata, elecPulseCollection* PMTPulseVoltageData);
 	Double_t GetConst_k(void){ return Const_k; };
 
 private:
