@@ -180,7 +180,7 @@ void GetHunapuPulse(const char* HunapuRootFileName, Int_t PulseNumber){
 		}
 
 		Time_array[ i ] = t_cur;
-//		std::cout << "Time: " << t_cur << " t_n: " << t_n << " A_n: "<< A_n << std::endl;
+		std::cout << "Time: " << t_cur << " t_n: " << t_n << " A_n: "<< A_n << std::endl;
 		Carge_array[ i ] = -Dep_q * A_n * exp( -Const_k * (t_cur - t_n) ) + Circuit_V * Circuit_C * (1.0e-9);
 		ADC_Vtmp =  1 / ( Circuit_C * 1.0e-9 ) * Dep_q * A_n * exp( -Const_k * (t_cur - t_n) );
 		ADC_Vtmp += gRandom->Gaus( V_BL_offset, V_BL_desv ); 

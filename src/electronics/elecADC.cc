@@ -71,6 +71,7 @@ void elecADC::DigitalizeVoltagePulses( elecWCDtankPMTdata* PMTPulsesData, elecRC
 	//std::vector< Long_t >* ADCcharge = new std::vector< Long_t >;
 
 	for( Long_t Pulse = 0; Pulse < NumberOfPulses; Pulse ++)
+//	for( Long_t Pulse = 0; Pulse < 1; Pulse ++)
 	{
 
 		PMTPulsesData->SetPulse( Pulse );
@@ -85,7 +86,7 @@ void elecADC::DigitalizeVoltagePulses( elecWCDtankPMTdata* PMTPulsesData, elecRC
 
 //		Double_t t_cur = (vect2d_tmp->at( 0 )).at(0);
 //		Double_t t_cur = (VoltagePulseData->at( 0 )).at(0);
-		Double_t t_cur = ((VoltagePulseData->at( Pulse )).at(0)).Time;
+		Double_t t_cur = ((VoltagePulseData->at( Pulse )).at(1)).Time;
 		Double_t V_n=0;
 
 		Long_t ADC_max = -1;
@@ -111,15 +112,21 @@ void elecADC::DigitalizeVoltagePulses( elecWCDtankPMTdata* PMTPulsesData, elecRC
 //				Table_pos++;
 			while( ( (VoltagePulseData->at( Pulse ).at( Table_pos )).Time < t_cur ) && ( Table_pos < ( Table_size - 1 ) ) )
 				Table_pos++;
-
+			if( Table_pos-- < 0 ) Table_pos = 0;
 //			V_n = (vect2d_tmp->at( Table_pos )).at(1);
 //			V_n = (VoltagePulseData->at( Table_pos )).at(1);
-			V_n = (VoltagePulseData->at( Pulse ).at( Table_pos )).Voltage;
+			V_n = ( ( VoltagePulseData->at( Pulse ) ).at( Table_pos ) ).Voltage;
 
 			Time_array.at(i) = i*Time_increment;
 
 			ADC_Vtmp =  V_n * exp( -( RCequivalentCircuit->GetConst_k() ) * t_cur ) + ADC_Voffset;
-
+/*
+			std::cout << "t_n: "       << (VoltagePulseData->at( Pulse ).at( Table_pos )).Time
+			          << " t_cur: "    << t_cur 
+			          << " V_n: "      << V_n 
+					  << " ADC_Vtmp: " << ADC_Vtmp 
+					  << std::endl;
+*/
 			if ( ADC_Vtmp > ( ADC_Trigger_Voltaje + ADC_Voffset )  ) Trigger_exceeded = true;
 
 			//if( ADC_Vtmp <= 0)

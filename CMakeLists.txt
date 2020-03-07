@@ -81,6 +81,7 @@ set(WCDtank_SCRIPTS
     muon-vert.mac
     muon-nonvert.mac
     pulses.C
+    pulses2.C
   )
 
 foreach(_script ${WCDtank_SCRIPTS})

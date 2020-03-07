@@ -40,6 +40,7 @@ void elecRCequivalent::PMTPulseVoltage(elecWCDtankPMTdata* PMTdata, elecPulseCol
 	elecPulseSignal *PMTPulse = new elecPulseSignal;
 
 	for( Long64_t PulseNumber = 0; PulseNumber < DataEntries; PulseNumber++)
+//	for( Long64_t PulseNumber = 0; PulseNumber < 1; PulseNumber++)
 	{
 		PMTdata->SetPulse( PulseNumber );
 		PulseData = PMTdata->GetPulseTimeData();
@@ -78,7 +79,7 @@ void elecRCequivalent::PMTPulseVoltage(elecWCDtankPMTdata* PMTdata, elecPulseCol
 			//vect1d_tmp->push_back(V_cur);
 			PMTPSPoint->Time = t_cur;
 			PMTPSPoint->Voltage = V_cur;
-//			std::cout << "Pulse: " << PulseNumber << " Photon: "<< i << " Time: " << t_cur << " V_cur: "<< A_cur << std::endl;
+//			std::cout << "Pulse: " << PulseNumber << " Photon: "<< i << " Time: " << t_cur << " V_cur: "<< V_cur << std::endl;
 //			vect2d_tmp->push_back(*vect1d_tmp);
 			//PMTPulseVoltageData->push_back(*vect1d_tmp);
 			//vect1d_tmp->clear();
