@@ -36,10 +36,8 @@ elecADC::~elecADC(void)
 void elecADC::DigitalizeVoltagePulses( elecWCDtankPMTdata* PMTPulsesData, elecRCequivalent* RCequivalentCircuit, elecADCoutput Output)
 {
 
-//	elecDataTable* VoltagePulseData = new elecDataTable();
 	elecPulseCollection* VoltagePulseData = new elecPulseCollection();
 
-//	RCequivalentCircuit->PMTPulseVoltage(PMTPulsesData, VoltagePulsesData);
 	RCequivalentCircuit->PMTPulseVoltage(PMTPulsesData, VoltagePulseData);
 
 	int argc = 1;
@@ -60,34 +58,23 @@ void elecADC::DigitalizeVoltagePulses( elecWCDtankPMTdata* PMTPulsesData, elecRC
 	std::vector< Double_t > ADC_array ( ADC_Samples_per_Pulse );
 	Double_t ADC_Vtmp = 0;
 
-//	std::vector < std::vector<Double_t> > *vect2d_tmp;
-
 	Long64_t NumberOfPulses = PMTPulsesData->GetNumberOfPulses();
-//	Long_t NumberOfPulses = VoltagePulseData->size();
 
 	std::vector< Long_t >* ADCmaximumAll = new std::vector< Long_t >;
 	std::vector< Long_t >* ADCmaximumVert = new std::vector< Long_t >;
 	std::vector< Long_t >* ADCmaximumNonVert = new std::vector< Long_t >;
-	//std::vector< Long_t >* ADCcharge = new std::vector< Long_t >;
 
 	for( Long_t Pulse = 0; Pulse < NumberOfPulses; Pulse ++)
-//	for( Long_t Pulse = 0; Pulse < 1; Pulse ++)
 	{
 
 		PMTPulsesData->SetPulse( Pulse );
 
-//		VoltagePulseData->clear();
-//		RCequivalentCircuit->PMTPulseVoltage(PMTPulsesData, VoltagePulseData);
-
 		std::fill (Time_array.begin(),Time_array.end(),0.0);
 		std::fill (ADC_array.begin(),ADC_array.end(),0.0);
 
-//		vect2d_tmp = &(VoltagePulsesData->at( Pulse ));
-
-//		Double_t t_cur = (vect2d_tmp->at( 0 )).at(0);
-//		Double_t t_cur = (VoltagePulseData->at( 0 )).at(0);
 		Double_t t_cur = ((VoltagePulseData->at( Pulse )).at(1)).Time;
 		Double_t V_n=0;
+		Double_t t_n=0;
 
 		Long_t ADC_max = -1;
 
@@ -96,9 +83,8 @@ void elecADC::DigitalizeVoltagePulses( elecWCDtankPMTdata* PMTPulsesData, elecRC
 		bool ADC_underflow = false;
 
 		Int_t Table_pos = 0;
-//		Int_t Table_size = vect2d_tmp->size();
-//		Int_t Table_size = VoltagePulseData->size();
 		Int_t Table_size = (VoltagePulseData->at( Pulse )).size();
+		std::cout << "\nTable_size: " << Table_size << std::endl;
 
 		for( short i = 0; i < ( ADC_Trigger_Sample_Offset - 1 ); i++)
 			Time_array.at(i) = i*Time_increment;
@@ -106,32 +92,19 @@ void elecADC::DigitalizeVoltagePulses( elecWCDtankPMTdata* PMTPulsesData, elecRC
 
 		for( Long_t i = ADC_Trigger_Sample_Offset ; i < ADC_Samples_per_Pulse ; i++ )
 		{
-//			while( ( (vect2d_tmp->at( Table_pos )).at(0) < t_cur ) && ( Table_pos < ( Table_size - 1 ) ) )
-//				Table_pos++;
-//			while( ( (VoltagePulseData->at( Table_pos )).at(0) < t_cur ) && ( Table_pos < ( Table_size - 1 ) ) )
-//				Table_pos++;
+
 			while( ( (VoltagePulseData->at( Pulse ).at( Table_pos )).Time < t_cur ) && ( Table_pos < ( Table_size - 1 ) ) )
 				Table_pos++;
 			if( Table_pos-- < 0 ) Table_pos = 0;
-//			V_n = (vect2d_tmp->at( Table_pos )).at(1);
-//			V_n = (VoltagePulseData->at( Table_pos )).at(1);
 			V_n = ( ( VoltagePulseData->at( Pulse ) ).at( Table_pos ) ).Voltage;
+			t_n = ( ( VoltagePulseData->at( Pulse ) ).at( Table_pos ) ).Time;
 
 			Time_array.at(i) = i*Time_increment;
 
-			ADC_Vtmp =  V_n * exp( -( RCequivalentCircuit->GetConst_k() ) * t_cur ) + ADC_Voffset;
-/*
-			std::cout << "t_n: "       << (VoltagePulseData->at( Pulse ).at( Table_pos )).Time
-			          << " t_cur: "    << t_cur 
-			          << " V_n: "      << V_n 
-					  << " ADC_Vtmp: " << ADC_Vtmp 
-					  << std::endl;
-*/
+			ADC_Vtmp =  V_n * exp( -( RCequivalentCircuit->GetConst_k() ) * ( t_cur - t_n ) ) + ADC_Voffset;
+
 			if ( ADC_Vtmp > ( ADC_Trigger_Voltaje + ADC_Voffset )  ) Trigger_exceeded = true;
 
-			//if( ADC_Vtmp <= 0)
-			//	ADC_array.at(i) = 0.0;
-			//else if( ADC_Vtmp >= ADC_Vref )
 			if( ADC_Vtmp >= ADC_Vref )
 			{
 				ADC_array.at(i) = ADC_bins - 1.0;
@@ -155,19 +128,14 @@ void elecADC::DigitalizeVoltagePulses( elecWCDtankPMTdata* PMTPulsesData, elecRC
 //			std::cout << "\r================================" << std::endl;
 			std::cout << "\rPulse: " << std::setw(8) << std::setfill('0') << Pulse << std::flush;
 //			std::cout << "\r================================" << std::endl;
-//			for(Int_t ii = 0;  ii < ADC_Samples_per_Pulse ; ii++ )
-//				std::cout << ADC_array.at(ii) << std::endl;
 
 			ADCmaximumAll->push_back(ADC_max);
 
-			//ADCmaxHistAll->Fill( ADC_max );
 
 			if( PMTPulsesData->GetPulseOrientation( ) )
 				ADCmaximumVert->push_back(ADC_max);
-				//ADCmaxHistVert->Fill( ADC_max );
 			else
 				ADCmaximumNonVert->push_back(ADC_max);
-				//ADCmaxHistNonVert->Fill( ADC_max );
 
 			if ( ADC_overflow )
 				std::cout << "\r" << std::setw(8) << std::setfill('0') << Pulse << ": ADC_overflow" << std::endl;
