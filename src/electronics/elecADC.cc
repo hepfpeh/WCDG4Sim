@@ -66,6 +66,13 @@ void elecADC::DigitalizeVoltagePulses( elecWCDtankPMTdata* PMTPulsesData, elecRC
 
 	for( Long_t Pulse = 0; Pulse < NumberOfPulses; Pulse ++)
 	{
+		std::cout << "\rPulse: " << std::setw(8) << std::setfill('0') << Pulse << std::flush;
+
+		if( (VoltagePulseData->at( Pulse )).size() == 1 )
+		{
+			std::cout  << "\r" << std::setw(8) << std::setfill('0') << Pulse << ": No photon data in this event. Skipping" << std::endl;
+			continue;
+		}
 
 		PMTPulsesData->SetPulse( Pulse );
 
@@ -84,7 +91,7 @@ void elecADC::DigitalizeVoltagePulses( elecWCDtankPMTdata* PMTPulsesData, elecRC
 
 		Int_t Table_pos = 0;
 		Int_t Table_size = (VoltagePulseData->at( Pulse )).size();
-		std::cout << "\nTable_size: " << Table_size << std::endl;
+		//std::cout << "\nTable_size: " << Table_size << std::endl;
 
 		for( short i = 0; i < ( ADC_Trigger_Sample_Offset - 1 ); i++)
 			Time_array.at(i) = i*Time_increment;
@@ -126,7 +133,7 @@ void elecADC::DigitalizeVoltagePulses( elecWCDtankPMTdata* PMTPulsesData, elecRC
 		if(Trigger_exceeded)
 		{
 //			std::cout << "\r================================" << std::endl;
-			std::cout << "\rPulse: " << std::setw(8) << std::setfill('0') << Pulse << std::flush;
+//			std::cout << "\rPulse: " << std::setw(8) << std::setfill('0') << Pulse << std::flush;
 //			std::cout << "\r================================" << std::endl;
 
 			ADCmaximumAll->push_back(ADC_max);
