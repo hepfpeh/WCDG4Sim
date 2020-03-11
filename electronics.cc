@@ -44,22 +44,22 @@ int main(int argc, char **argv){
 	HunapuPMTData->LoadRootFile( HunapuRootFileName.c_str () );
 
 	elecRCequivalent *HunapuRCequivalentCircuit = new elecRCequivalent();
-//
-//	elecDataTable* HunapuPulsesVoltage = new elecDataTable();
-//
-//	HunapuRCequivalentCircuit->PMTPulseVoltage(HunapuPMTData, HunapuPulsesVoltage);
-//
-//	std::cout << "HunapuPulsesVoltage size: " << HunapuPulsesVoltage->size() << std::endl;
+
+	elecPulseCollection* HunapuPulsesVoltage = new elecPulseCollection();
+
+	HunapuRCequivalentCircuit->PMTPhotonsToVoltageSignal(HunapuPMTData, HunapuPulsesVoltage);
+
+	std::cout << "HunapuPulsesVoltage size: " << HunapuPulsesVoltage->size() << std::endl;
 
 	elecADC* HunapuADC = new elecADC;
 
-	HunapuADC->DigitalizeVoltagePulses(HunapuPMTData, HunapuRCequivalentCircuit, elecADCoutput::none);
+	HunapuADC->DigitalizeVoltagePulses(HunapuRCequivalentCircuit, HunapuPulsesVoltage);
 
-//	char aChar;
-//
-//	std::cout << "Press any key and enter: " ;
-//	std::cin >> aChar;
-//	std::cout << std::endl;
+	char aChar;
+
+	std::cout << "Press any key and enter: " ;
+	std::cin >> aChar;
+	std::cout << std::endl;
 
 	return 0;
 }

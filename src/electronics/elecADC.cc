@@ -8,37 +8,42 @@
 #include <cmath>
 #include <algorithm>
 #include <vector>
+#include <boost/circular_buffer.hpp>
 
 #include "TFile.h"
 #include "TTree.h"
 #include "TH1.h"
+#include "TGraph.h"
 #include "TCanvas.h"
 #include "Rtypes.h"
 #include "TApplication.h"
 #include "TROOT.h"
+#include "TRandom3.h"
 
 #include "elecADC.hh"
 
 elecADC::elecADC(void)
 {
 	ADC_bits = 14;
-	ADC_Vref = 2.0; // en Volts. (GND=0)
-	ADC_Voffset = 1.0;
-	ADC_Sample_Rate = 125.0; // en MHz.
-	ADC_Samples_per_Pulse = 20;
-	ADC_Trigger_Voltaje = 0.003; // en Volts.
-	ADC_Trigger_Sample_Offset = 5;
+	ADC_Vref = 2.0; // Volts. (GND=0)
+	ADC_VSignal_Offset = 1.0; // Volts. Offset a la señal de entrada del ADC.
+	ADC_Sample_Rate = 125.0; // MHz.
+	ADC_Samples_per_Pulse = 32;
+	ADC_Trigger_Voltaje = -0.003; // Volts.
+	ADC_Pre_Trigger_Samples = 5;
+	ADC_VBaseLine = 0.0; // Volts. Linea base de la senal de entrada.
+	ADC_VBaseLine_dev = 0.001; // Volts. Desviacion del ruido gaussiano en la señal de entrada. La media es ADC_VBaseLine. 
 }
 
 elecADC::~elecADC(void)
 {}
 
-void elecADC::DigitalizeVoltagePulses( elecWCDtankPMTdata* PMTPulsesData, elecRCequivalent* RCequivalentCircuit, elecADCoutput Output)
+void elecADC::DigitalizeVoltagePulses( elecRCequivalent* RCequivalentCircuit, elecPulseCollection* VoltagePulseData )
 {
 
-	elecPulseCollection* VoltagePulseData = new elecPulseCollection();
+	//elecPulseCollection* VoltagePulseData = new elecPulseCollection();
 
-	RCequivalentCircuit->PMTPulseVoltage(PMTPulsesData, VoltagePulseData);
+	//RCequivalentCircuit->PMTPhotonsToVoltageSignal(PMTPulsesData, VoltagePulseData);
 
 	int argc = 1;
 	char* argv[] = { (char*)"elec" };
@@ -56,25 +61,19 @@ void elecADC::DigitalizeVoltagePulses( elecWCDtankPMTdata* PMTPulsesData, elecRC
 
 	std::vector< Double_t > Time_array ( ADC_Samples_per_Pulse );
 	std::vector< Double_t > ADC_array ( ADC_Samples_per_Pulse );
+	boost::circular_buffer<Double_t> *ADC_cbuffer = new boost::circular_buffer<Double_t>( ADC_Samples_per_Pulse );
 	Double_t ADC_Vtmp = 0;
+	Double_t ADC_Btmp = 0;
 
-	Long64_t NumberOfPulses = PMTPulsesData->GetNumberOfPulses();
+	Long64_t NumberOfPulses = VoltagePulseData->size();
+	//Long64_t NumberOfPulses = 102;
+	Long_t Trigger_point=0;
 
 	std::vector< Long_t >* ADCmaximumAll = new std::vector< Long_t >;
-	std::vector< Long_t >* ADCmaximumVert = new std::vector< Long_t >;
-	std::vector< Long_t >* ADCmaximumNonVert = new std::vector< Long_t >;
-
+	
 	for( Long_t Pulse = 0; Pulse < NumberOfPulses; Pulse ++)
 	{
 		std::cout << "\rPulse: " << std::setw(8) << std::setfill('0') << Pulse << std::flush;
-
-		if( (VoltagePulseData->at( Pulse )).size() == 1 )
-		{
-			std::cout  << "\r" << std::setw(8) << std::setfill('0') << Pulse << ": No photon data in this event. Skipping" << std::endl;
-			continue;
-		}
-
-		PMTPulsesData->SetPulse( Pulse );
 
 		std::fill (Time_array.begin(),Time_array.end(),0.0);
 		std::fill (ADC_array.begin(),ADC_array.end(),0.0);
@@ -82,8 +81,9 @@ void elecADC::DigitalizeVoltagePulses( elecWCDtankPMTdata* PMTPulsesData, elecRC
 		Double_t t_cur = ((VoltagePulseData->at( Pulse )).at(1)).Time;
 		Double_t V_n=0;
 		Double_t t_n=0;
+		Double_t t_init = t_cur - Time_increment * ( ADC_Pre_Trigger_Samples - 1 ) - gRandom->Uniform( Time_increment );
 
-		Long_t ADC_max = -1;
+		Long_t ADC_max = 10000000;
 
 		bool Trigger_exceeded = false;
 		bool ADC_overflow = false;
@@ -93,11 +93,26 @@ void elecADC::DigitalizeVoltagePulses( elecWCDtankPMTdata* PMTPulsesData, elecRC
 		Int_t Table_size = (VoltagePulseData->at( Pulse )).size();
 		//std::cout << "\nTable_size: " << Table_size << std::endl;
 
-		for( short i = 0; i < ( ADC_Trigger_Sample_Offset - 1 ); i++)
-			Time_array.at(i) = i*Time_increment;
+		t_cur = t_init;
+		for( short i = 0; i < ADC_Pre_Trigger_Samples ; i++)
+		{
+			ADC_Vtmp = gRandom->Gaus( ADC_VBaseLine, ADC_VBaseLine_dev )  + ADC_VSignal_Offset ;
+			ADC_Btmp = std::floor(  ADC_Vtmp / ADC_Dv );
+			//std::cout << "BL+OF: " << ADC_Vtmp << " B: " << ADC_Btmp << std::endl; 
+
+			if( ADC_Btmp < 0 )
+				ADC_cbuffer->push_back( 0.0 );
+			else if( ADC_Btmp > ( ADC_bins - 1 ) ) 
+				ADC_cbuffer->push_back( ADC_bins - 1 );
+			else
+				ADC_cbuffer->push_back( ADC_Btmp );
+
+			Time_array.at(i) = t_cur;
+			t_cur += Time_increment;
+		}
 
 
-		for( Long_t i = ADC_Trigger_Sample_Offset ; i < ADC_Samples_per_Pulse ; i++ )
+		for( Long_t i = ADC_Pre_Trigger_Samples ; i < ADC_Samples_per_Pulse ; i++ )
 		{
 
 			while( ( (VoltagePulseData->at( Pulse ).at( Table_pos )).Time < t_cur ) && ( Table_pos < ( Table_size - 1 ) ) )
@@ -106,27 +121,32 @@ void elecADC::DigitalizeVoltagePulses( elecWCDtankPMTdata* PMTPulsesData, elecRC
 			V_n = ( ( VoltagePulseData->at( Pulse ) ).at( Table_pos ) ).Voltage;
 			t_n = ( ( VoltagePulseData->at( Pulse ) ).at( Table_pos ) ).Time;
 
-			Time_array.at(i) = i*Time_increment;
-
-			ADC_Vtmp =  V_n * exp( -( RCequivalentCircuit->GetConst_k() ) * ( t_cur - t_n ) ) + ADC_Voffset;
-
-			if ( ADC_Vtmp > ( ADC_Trigger_Voltaje + ADC_Voffset )  ) Trigger_exceeded = true;
-
-			if( ADC_Vtmp >= ADC_Vref )
+			ADC_Vtmp =  V_n * exp( -( RCequivalentCircuit->GetConst_k() ) * ( t_cur - t_n ) );
+			ADC_Vtmp += gRandom->Gaus( ADC_VBaseLine, ADC_VBaseLine_dev )  + ADC_VSignal_Offset ; 
+			ADC_Btmp = std::floor(  ADC_Vtmp / ADC_Dv );
+			
+			if ( ADC_Vtmp < ( ADC_Trigger_Voltaje + ADC_VSignal_Offset ) && !Trigger_exceeded )
 			{
-				ADC_array.at(i) = ADC_bins - 1.0;
+				Trigger_exceeded = true;
+				Trigger_point = i;
+				//std::cout << "Trigger at: " << i << std::endl;
+			} 
+			if( ADC_Btmp > ( ADC_bins - 1 ) )
+			{
+				ADC_cbuffer->push_back( ADC_bins - 1 );
 				ADC_overflow = true;
 			}
-			else if (  ADC_Vtmp <= 0 )
+			else if (  ADC_Btmp < 0 )
 			{
-				ADC_array.at(i) = 0.0;
+				ADC_cbuffer->push_back( 0.0 );
 				ADC_underflow = true;
 			}
 			else
-				ADC_array.at(i) = std::floor( ADC_Vtmp / ADC_Dv );
+				ADC_cbuffer->push_back( ADC_Btmp );
 
-			if( ADC_array.at(i) > ADC_max ) ADC_max = ADC_array.at(i);
+			if( ADC_Btmp < ADC_max ) ADC_max = ADC_Btmp;
 
+			Time_array.at(i) = t_cur;
 			t_cur += Time_increment;
 		}
 
@@ -137,12 +157,6 @@ void elecADC::DigitalizeVoltagePulses( elecWCDtankPMTdata* PMTPulsesData, elecRC
 //			std::cout << "\r================================" << std::endl;
 
 			ADCmaximumAll->push_back(ADC_max);
-
-
-			if( PMTPulsesData->GetPulseOrientation( ) )
-				ADCmaximumVert->push_back(ADC_max);
-			else
-				ADCmaximumNonVert->push_back(ADC_max);
 
 			if ( ADC_overflow )
 				std::cout << "\r" << std::setw(8) << std::setfill('0') << Pulse << ": ADC_overflow" << std::endl;
@@ -167,36 +181,46 @@ void elecADC::DigitalizeVoltagePulses( elecWCDtankPMTdata* PMTPulsesData, elecRC
 	std::cout << "********************************" << std::endl;
 
 	TH1 *ADCmaxHistAll 		= new TH1D("H1","ADC pulse maximum (All)",100,histll, histul);
-	TH1 *ADCmaxHistVert 	= new TH1D("H2","ADC pulse maximum (Verticals)",100,histll, histul);
-	TH1 *ADCmaxHistNonVert 	= new TH1D("H3","ADC pulse maximum (Non-Verticals)",100,histll, histul);
+//	TH1 *ADCmaxHistVert 	= new TH1D("H2","ADC pulse maximum (Verticals)",100,histll, histul);
+//	TH1 *ADCmaxHistNonVert 	= new TH1D("H3","ADC pulse maximum (Non-Verticals)",100,histll, histul);
 
 	for( auto i: *ADCmaximumAll )
 		ADCmaxHistAll->Fill( i );
+
+	Long_t Start_point;
+
+	if( Trigger_point > ADC_Pre_Trigger_Samples  )
+                Start_point = Trigger_point - ADC_Pre_Trigger_Samples ;
+            else
+                Start_point = ADC_Samples_per_Pulse - ADC_Pre_Trigger_Samples  + Trigger_point;
+
+	for(Long_t i = 0; i < ADC_Samples_per_Pulse ; ++i)
+        ADC_array[ i ] = ADC_cbuffer->at( ( Start_point + i ) % ADC_Samples_per_Pulse );
+
+	Double_t *Ta = &Time_array[0];
+	Double_t *Aa = &ADC_array[0];
 	
-	for( auto i: *ADCmaximumVert )
-		ADCmaxHistVert->Fill( i );
-	
-	for( auto i: *ADCmaximumNonVert )
-		ADCmaxHistNonVert->Fill( i );
+	TGraph *Circuit_C_Carge = new TGraph( ADC_Samples_per_Pulse, Ta, Aa);
 
 
 	TCanvas *ShowHists = new TCanvas("Algo", "otro", 600, 400);
-	ShowHists->Divide(1,3);
+	ShowHists->Divide(1,2);
 
 	ShowHists->cd(1);
 	ADCmaxHistAll->Draw();
 	ShowHists->Update();
 
 	ShowHists->cd(2);
-	ADCmaxHistVert->SetLineColor(kRed);
-	ADCmaxHistVert->Draw("same");
+    Circuit_C_Carge->Draw("AL*");
+//	ADCmaxHistVert->SetLineColor(kRed);
+//	ADCmaxHistVert->Draw("same");
 	ShowHists->Update();
-
+/*
 	ShowHists->cd(3);
 	ADCmaxHistNonVert->SetLineColor(kGreen);
 	ADCmaxHistNonVert->Draw("same");
 	ShowHists->Update();
-
+*/
 	ShowHists->Modified();
 	ShowHists->Connect("Closed()", "TApplication", gApplication, "Terminate()"); //new
 
