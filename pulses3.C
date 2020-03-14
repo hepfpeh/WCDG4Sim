@@ -12,7 +12,7 @@
 #include <cmath>
 #include <algorithm>
 
-void AvRTGraph(const char* WCDTankDataRootFileName, Int_t PulseNumber){
+void AvRTGraph(const char* WCDTankDataRootFileName, TH2* AvRTHist){
 	Long64_t Entries;
 	std::vector<double> *PulseData = new std::vector<double>();
 
@@ -29,7 +29,7 @@ void AvRTGraph(const char* WCDTankDataRootFileName, Int_t PulseNumber){
 	}
 */
 
-	TH2 *AvRTHist = new TH2D("H1","Amplitude vs Raize Time",50,0,50,100,0,100);
+	//TH2 *AvRTHist = new TH2D("H1","Amplitude vs Raize Time",50,0,50,100,0,100);
 		
 
 	for( Long_t Event = 0 ; Event < Entries ; Event++ )
@@ -75,9 +75,26 @@ void AvRTGraph(const char* WCDTankDataRootFileName, Int_t PulseNumber){
 		delete tmpHist;
 	}	
 	
-	TCanvas *ShowHists = new TCanvas("Algo", "otro", 600, 400);
-	AvRTHist->Draw();
-	ShowHists->Update();
+	//TCanvas *ShowHists = new TCanvas("Algo", "otro", 600, 400);
+	//AvRTHist->Draw();
+	//ShowHists->Update();
 
 } 
 
+void ComposeHist(void){
+
+	THStack *hs = new THStack("hs","");
+	TH2 *Hist1 = new TH2D("H1","Frist hist",50,0,50,100,0,100);
+	TH2 *Hist2 = new TH2D("H2","Second hist",50,0,50,100,0,100);
+
+	AvRTGraph("/home/hector/muon-electron/WCDtank-20200302-170342.root", Hist1);
+	AvRTGraph("/home/hector/muon-electron/WCDtank-20200302-171814.root", Hist2);
+
+	hs->Add(Hist1);
+	hs->Add(Hist2);
+
+	TCanvas *ShowHists = new TCanvas("Algo", "otro", 600, 400);
+	hs->Draw();
+	ShowHists->Update();
+
+}
