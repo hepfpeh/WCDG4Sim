@@ -42,6 +42,7 @@ void WCDtankSteppingAction::UserSteppingAction(const G4Step* theStep)
 	  if (volume != ScoringVolume) return;
 
 	  // collect energy deposited in this step
+	  /*
 	  G4double edepStep = theStep->GetTotalEnergyDeposit();
 	  EventAction->AddDepositedEnergy(edepStep);
 
@@ -51,6 +52,20 @@ void WCDtankSteppingAction::UserSteppingAction(const G4Step* theStep)
 		  stepLength = theStep->GetStepLength();
 		}
 		EventAction->AddTrackLength(stepLength);
+	*/
+	// Energy and length:
+	G4double edepStep = 0.0;
+	G4double stepLength = 0.0;
+
+	// check if the particle is the primary particle.
+	if ( theStep->GetTrack()->GetDefinition()->GetPDGEncoding() == EventAction->GetParticlePDGcode() ) {
+		stepLength = theStep->GetStepLength();
+		edepStep = theStep->GetTotalEnergyDeposit();
+	}
+
+	// add to the totals
+	EventAction->AddDepositedEnergy(edepStep);
+	EventAction->AddTrackLength(stepLength);
 
 }
 
