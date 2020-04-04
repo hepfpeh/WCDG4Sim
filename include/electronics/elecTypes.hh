@@ -29,8 +29,8 @@ typedef struct elecSignalPoint_s {
     Double_t Time;
     Double_t Voltage;
 } elecSignalPoint;
-typedef std::vector < elecSignalPoint > elecPulseSignal;
-typedef std::vector < elecPulseSignal > elecPulseCollection;
+typedef std::vector < elecSignalPoint > elecEventSignal;
+typedef std::vector < elecEventSignal > elecEventCollection;
 
 
 

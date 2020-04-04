@@ -8,11 +8,10 @@
 #ifndef INCLUDE_ELECTRONICS_ELECADC_HH_
 #define INCLUDE_ELECTRONICS_ELECADC_HH_
 
-#include "elecTypes.hh"
 #include "elecRCequivalent.hh"
+#include "elecVoltageSignal.hh"
 
-
-class elecRCequivalent;
+class elecVoltageSignal;
 
 enum class elecADCoutput { file, histogram, none };
 
@@ -21,7 +20,7 @@ public:
 	elecADC(void);
 	~elecADC(void);
 
-	void DigitalizeVoltagePulses( elecRCequivalent* RCequivalentCircuit, elecPulseCollection* VoltagePulseData );
+	void DigitalizeVoltageSignal( elecVoltageSignal* VoltageSignalData );
 
 private:
 	Int_t		ADC_bits;
@@ -31,9 +30,6 @@ private:
 	Int_t		ADC_Samples_per_Pulse;
 	Double_t	ADC_Trigger_Voltaje;
 	Int_t		ADC_Pre_Trigger_Samples;
-	Double_t    ADC_VBaseLine;
-	Double_t    ADC_VBaseLine_dev;
-
 };
 
 

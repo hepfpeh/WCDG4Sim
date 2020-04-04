@@ -67,26 +67,12 @@ void elecWCDtankPMTdata::SetPulse( Long64_t PulseNumber )
 	if( !PulseTimeData )
 		PulseTimeData = new std::vector < Double_t >;
 
-//	Double_t tmp = 0;
-//	PMTdata->SetBranchAddress("Direction",			&tmp);
-
-/*
-	PMTdata->SetBranchAddress("Primary_Energy",		&Primary_Energy);
-	PMTdata->SetBranchAddress("Azimuth_angle",		&Cenit_angle);
-	PMTdata->SetBranchAddress("Direction",			&Direction);
-	PMTdata->SetBranchAddress("Deposited_Energy",	&Deposited_Energy);
-	PMTdata->SetBranchAddress("Track_Length",		&Track_Length);
-	PMTdata->SetBranchAddress("Photon_Count",		&Photon_Count);
-	PMTdata->SetBranchAddress("Photon_Arrival_Time",&PulseTimeData);
-*/
-
 	if (PulseNumber < Entries ) PMTdata->GetEntry(PulseNumber);
 	else {
 		std::cout << "Invalid pulse Number" << std::endl;
 		return;
 	}
 
-//	Direction = (int)tmp;
 	std::sort( PulseTimeData->begin(), PulseTimeData->end() );
 }
 

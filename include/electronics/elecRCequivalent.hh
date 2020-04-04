@@ -8,10 +8,11 @@
 #ifndef INCLUDE_ELECTRONICS_ELECRCEQUIVALENT_HH_
 #define INCLUDE_ELECTRONICS_ELECRCEQUIVALENT_HH_
 
-#include "elecTypes.hh"
 #include "elecWCDtankPMTdata.hh"
+#include "elecVoltageSignal.hh"
 
 class elecWCDtankPMTdata;
+class elecVoltageSignal;
 
 
 class elecRCequivalent {
@@ -19,8 +20,7 @@ public:
 	elecRCequivalent(void);
 	~elecRCequivalent(void);
 
-	//void PMTPulseVoltage(elecWCDtankPMTdata* PMTdata, elecDataTable* PMTPulseVoltageData);
-	void PMTPhotonsToVoltageSignal(elecWCDtankPMTdata* PMTdata, elecPulseCollection* PMTPulseVoltageData);
+	void PMTPhotonsToVoltageSignal(elecWCDtankPMTdata* PMTdata, elecVoltageSignal* PMTPulseVoltageData);
 	Double_t GetConst_k(void){ return Const_k; };
 
 private:

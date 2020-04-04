@@ -7,6 +7,8 @@
 
 
 #include "elecRCequivalent.hh"
+#include "elecTypes.hh"
+
 #include "Rtypes.h"
 
 #include <vector>
@@ -22,7 +24,8 @@ elecRCequivalent::elecRCequivalent(void)
 elecRCequivalent::~elecRCequivalent(void)
 {}
 
-void elecRCequivalent::PMTPhotonsToVoltageSignal(elecWCDtankPMTdata* PMTdata, elecPulseCollection* PMTOutputPulses)
+
+void elecRCequivalent::PMTPhotonsToVoltageSignal(elecWCDtankPMTdata* PMTdata, elecVoltageSignal* PMTOutputSignal)
 {
 	Double_t Dep_q = -1.6e-13;								// en C. ( se fija como e x 10^6)
 
@@ -31,8 +34,8 @@ void elecRCequivalent::PMTPhotonsToVoltageSignal(elecWCDtankPMTdata* PMTdata, el
 
 	Long64_t DataEntries = PMTdata->GetNumberOfPulses();
 
-	elecSignalPoint *PMTPSPoint = new elecSignalPoint;
-	elecPulseSignal *PMTPulse = new elecPulseSignal;
+	elecSignalPoint *PMTSPoint = new elecSignalPoint;
+	elecEventSignal *PMTSignal = new elecEventSignal;
 
 	for( Long64_t EventNumber = 0;  EventNumber < DataEntries; EventNumber++)
 	{
@@ -52,10 +55,10 @@ void elecRCequivalent::PMTPhotonsToVoltageSignal(elecWCDtankPMTdata* PMTdata, el
 
 //		std::cout << "Pulse: " << EventNumber << " Photon count: "<< PhotonDataEntries  << std::endl;
 
-		PMTPSPoint->Time = t_cur;
-		PMTPSPoint->Voltage = V_cur;
+		PMTSPoint->Time = t_cur;
+		PMTSPoint->Voltage = V_cur;
 
-		PMTPulse->push_back( *PMTPSPoint );
+		PMTSignal->push_back( *PMTSPoint );
 
 
 
@@ -66,20 +69,19 @@ void elecRCequivalent::PMTPhotonsToVoltageSignal(elecWCDtankPMTdata* PMTdata, el
 		for( int i = 0 ; i < PhotonDataEntries ; i++ ){
 			t_cur = PhotonData->at( i );
 			A_cur = 1.0 + A_ant * exp( -Const_k * (t_cur - t_ant) );
-//			V_cur = 1 / ( Circuit_C * 1.0e-9 ) * Dep_q * A_cur * exp( Const_k * t_cur );
 			V_cur = 1 / ( Circuit_C * 1.0e-9 ) * Dep_q * A_cur;
-			PMTPSPoint->Time = t_cur;
-			PMTPSPoint->Voltage = V_cur;
-//			std::cout << "Pulse: " << EventNumber << " Photon: "<< i << " Time: " << t_cur << " V_cur: "<< V_cur << std::endl;
+			PMTSPoint->Time = t_cur;
+			PMTSPoint->Voltage = V_cur;
 
-			PMTPulse->push_back( *PMTPSPoint );
+			PMTSignal->push_back( *PMTSPoint );
 
 			t_ant = t_cur;
 			A_ant = A_cur;
 		}
 
-		PMTOutputPulses->push_back(*PMTPulse);
+		PMTOutputSignal->AppendEventData(PMTSignal);
+		PMTOutputSignal->SetKConstant(Const_k);
 
-		PMTPulse->clear();
+		PMTSignal->clear();
 	}
 }

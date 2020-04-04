@@ -49,7 +49,7 @@ int main(int argc,char** argv) {
 
 #ifdef G4MULTITHREADED
   auto runManager = new G4MTRunManager;
-  runManager->SetNumberOfThreads(10);
+  runManager->SetNumberOfThreads(6);
 #else
   auto runManager = new G4RunManager;
 #endif

@@ -28,22 +28,16 @@ elecADC::elecADC(void)
 	ADC_Vref = 2.0; // Volts. (GND=0)
 	ADC_VSignal_Offset = 1.0; // Volts. Offset a la señal de entrada del ADC.
 	ADC_Sample_Rate = 125.0; // MHz.
-	ADC_Samples_per_Pulse = 32;
+	ADC_Samples_per_Pulse = 1000;
 	ADC_Trigger_Voltaje = -0.003; // Volts.
 	ADC_Pre_Trigger_Samples = 5;
-	ADC_VBaseLine = 0.0; // Volts. Linea base de la senal de entrada.
-	ADC_VBaseLine_dev = 0.001; // Volts. Desviacion del ruido gaussiano en la señal de entrada. La media es ADC_VBaseLine. 
 }
 
 elecADC::~elecADC(void)
 {}
 
-void elecADC::DigitalizeVoltagePulses( elecRCequivalent* RCequivalentCircuit, elecPulseCollection* VoltagePulseData )
+void elecADC::DigitalizeVoltageSignal( elecVoltageSignal* VoltageSignalData )
 {
-
-	//elecPulseCollection* VoltagePulseData = new elecPulseCollection();
-
-	//RCequivalentCircuit->PMTPhotonsToVoltageSignal(PMTPulsesData, VoltagePulseData);
 
 	int argc = 1;
 	char* argv[] = { (char*)"elec" };
@@ -65,22 +59,19 @@ void elecADC::DigitalizeVoltagePulses( elecRCequivalent* RCequivalentCircuit, el
 	Double_t ADC_Vtmp = 0;
 	Double_t ADC_Btmp = 0;
 
-	Long64_t NumberOfPulses = VoltagePulseData->size();
-	//Long64_t NumberOfPulses = 102;
+	Long64_t NumberOfEvents = VoltageSignalData->GetNumberOfEvents();
 	Long_t Trigger_point=0;
 
 	std::vector< Long_t >* ADCmaximumAll = new std::vector< Long_t >;
 	
-	for( Long_t Pulse = 0; Pulse < NumberOfPulses; Pulse ++)
+	for( Long_t Event = 0; Event < NumberOfEvents; Event ++)
 	{
-		std::cout << "\rPulse: " << std::setw(8) << std::setfill('0') << Pulse << std::flush;
+		std::cout << "\rEvent: " << std::setw(8) << std::setfill('0') << Event << std::flush;
 
 		std::fill (Time_array.begin(),Time_array.end(),0.0);
 		std::fill (ADC_array.begin(),ADC_array.end(),0.0);
 
-		Double_t t_cur = ((VoltagePulseData->at( Pulse )).at(1)).Time;
-		Double_t V_n=0;
-		Double_t t_n=0;
+		Double_t t_cur = VoltageSignalData->GetMinTime( Event );
 		Double_t t_init = t_cur - Time_increment * ( ADC_Pre_Trigger_Samples - 1 ) - gRandom->Uniform( Time_increment );
 
 		Long_t ADC_max = 10000000;
@@ -89,16 +80,11 @@ void elecADC::DigitalizeVoltagePulses( elecRCequivalent* RCequivalentCircuit, el
 		bool ADC_overflow = false;
 		bool ADC_underflow = false;
 
-		Int_t Table_pos = 0;
-		Int_t Table_size = (VoltagePulseData->at( Pulse )).size();
-		//std::cout << "\nTable_size: " << Table_size << std::endl;
-
 		t_cur = t_init;
 		for( short i = 0; i < ADC_Pre_Trigger_Samples ; i++)
 		{
-			ADC_Vtmp = gRandom->Gaus( ADC_VBaseLine, ADC_VBaseLine_dev )  + ADC_VSignal_Offset ;
-			ADC_Btmp = std::floor(  ADC_Vtmp / ADC_Dv );
-			//std::cout << "BL+OF: " << ADC_Vtmp << " B: " << ADC_Btmp << std::endl; 
+			ADC_Vtmp = VoltageSignalData->GetVoltage( Event, t_cur) + ADC_VSignal_Offset;
+			ADC_Btmp = std::floor(  ADC_Vtmp / ADC_Dv ); 
 
 			if( ADC_Btmp < 0 )
 				ADC_cbuffer->push_back( 0.0 );
@@ -115,21 +101,13 @@ void elecADC::DigitalizeVoltagePulses( elecRCequivalent* RCequivalentCircuit, el
 		for( Long_t i = ADC_Pre_Trigger_Samples ; i < ADC_Samples_per_Pulse ; i++ )
 		{
 
-			while( ( (VoltagePulseData->at( Pulse ).at( Table_pos )).Time < t_cur ) && ( Table_pos < ( Table_size - 1 ) ) )
-				Table_pos++;
-			if( Table_pos-- < 0 ) Table_pos = 0;
-			V_n = ( ( VoltagePulseData->at( Pulse ) ).at( Table_pos ) ).Voltage;
-			t_n = ( ( VoltagePulseData->at( Pulse ) ).at( Table_pos ) ).Time;
-
-			ADC_Vtmp =  V_n * exp( -( RCequivalentCircuit->GetConst_k() ) * ( t_cur - t_n ) );
-			ADC_Vtmp += gRandom->Gaus( ADC_VBaseLine, ADC_VBaseLine_dev )  + ADC_VSignal_Offset ; 
+			ADC_Vtmp = VoltageSignalData->GetVoltage( Event, t_cur) + ADC_VSignal_Offset; 
 			ADC_Btmp = std::floor(  ADC_Vtmp / ADC_Dv );
 			
 			if ( ADC_Vtmp < ( ADC_Trigger_Voltaje + ADC_VSignal_Offset ) && !Trigger_exceeded )
 			{
 				Trigger_exceeded = true;
 				Trigger_point = i;
-				//std::cout << "Trigger at: " << i << std::endl;
 			} 
 			if( ADC_Btmp > ( ADC_bins - 1 ) )
 			{
@@ -152,23 +130,17 @@ void elecADC::DigitalizeVoltagePulses( elecRCequivalent* RCequivalentCircuit, el
 
 		if(Trigger_exceeded)
 		{
-//			std::cout << "\r================================" << std::endl;
-//			std::cout << "\rPulse: " << std::setw(8) << std::setfill('0') << Pulse << std::flush;
-//			std::cout << "\r================================" << std::endl;
-
 			ADCmaximumAll->push_back(ADC_max);
 
 			if ( ADC_overflow )
-				std::cout << "\r" << std::setw(8) << std::setfill('0') << Pulse << ": ADC_overflow" << std::endl;
+				std::cout << "\r" << std::setw(8) << std::setfill('0') << Event << ": ADC_overflow" << std::endl;
 			if ( ADC_underflow )
-				std::cout << "\r" << std::setw(8) << std::setfill('0') << Pulse << ": ADC_undeflow" << std::endl;
+				std::cout << "\r" << std::setw(8) << std::setfill('0') << Event << ": ADC_undeflow" << std::endl;
 
 		}
 		else
 		{
-//			std::cout << "================================" << std::endl;
-			std::cout << "\r" << std::setw(8) << std::setfill('0') << Pulse << ": Trigger not exceeded" << std::endl;
-//			std::cout << "================================" << std::endl;
+			std::cout << "\r" << std::setw(8) << std::setfill('0') << Event << ": Trigger not exceeded" << std::endl;
 		}
 	}
 
@@ -181,8 +153,6 @@ void elecADC::DigitalizeVoltagePulses( elecRCequivalent* RCequivalentCircuit, el
 	std::cout << "********************************" << std::endl;
 
 	TH1 *ADCmaxHistAll 		= new TH1D("H1","ADC pulse maximum (All)",100,histll, histul);
-//	TH1 *ADCmaxHistVert 	= new TH1D("H2","ADC pulse maximum (Verticals)",100,histll, histul);
-//	TH1 *ADCmaxHistNonVert 	= new TH1D("H3","ADC pulse maximum (Non-Verticals)",100,histll, histul);
 
 	for( auto i: *ADCmaximumAll )
 		ADCmaxHistAll->Fill( i );
@@ -212,15 +182,8 @@ void elecADC::DigitalizeVoltagePulses( elecRCequivalent* RCequivalentCircuit, el
 
 	ShowHists->cd(2);
     Circuit_C_Carge->Draw("AL*");
-//	ADCmaxHistVert->SetLineColor(kRed);
-//	ADCmaxHistVert->Draw("same");
 	ShowHists->Update();
-/*
-	ShowHists->cd(3);
-	ADCmaxHistNonVert->SetLineColor(kGreen);
-	ADCmaxHistNonVert->Draw("same");
-	ShowHists->Update();
-*/
+
 	ShowHists->Modified();
 	ShowHists->Connect("Closed()", "TApplication", gApplication, "Terminate()"); //new
 
