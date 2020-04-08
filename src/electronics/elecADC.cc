@@ -8,6 +8,8 @@
 #include <cmath>
 #include <algorithm>
 #include <vector>
+#include <fstream>
+#include <ctime>
 #include <boost/circular_buffer.hpp>
 
 #include "TFile.h"
@@ -36,17 +38,8 @@ elecADC::elecADC(void)
 elecADC::~elecADC(void)
 {}
 
-void elecADC::DigitalizeVoltageSignal( elecVoltageSignal* VoltageSignalData )
+void elecADC::DigitalizeVoltageSignal( elecVoltageSignal* VoltageSignalData, elecADCoutput outputType )
 {
-
-	int argc = 1;
-	char* argv[] = { (char*)"elec" };
-
-	TApplication theApp("elec", &argc, argv);
-	if (gROOT->IsBatch()) {
-	  fprintf(stderr, "%s: cannot run in batch mode\n", argv[0]);
-	  return;
-	}
 
 	Long_t ADC_bins = std::pow( 2, ADC_bits );
 	Double_t ADC_Dv = ADC_Vref / ADC_bins;
@@ -55,15 +48,70 @@ void elecADC::DigitalizeVoltageSignal( elecVoltageSignal* VoltageSignalData )
 
 	std::vector< Double_t > Time_array ( ADC_Samples_per_Pulse );
 	std::vector< Double_t > ADC_array ( ADC_Samples_per_Pulse );
-	boost::circular_buffer<Double_t> *ADC_cbuffer = new boost::circular_buffer<Double_t>( ADC_Samples_per_Pulse );
 	Double_t ADC_Vtmp = 0;
 	Double_t ADC_Btmp = 0;
 
 	Long64_t NumberOfEvents = VoltageSignalData->GetNumberOfEvents();
 	Long_t Trigger_point=0;
+	Long_t Start_point;
 
-	std::vector< Long_t >* ADCmaximumAll = new std::vector< Long_t >;
-	
+	std::vector< Long_t >* ADCmaximumAll = 0;
+	boost::circular_buffer<Double_t>* ADC_cbuffer = 0;
+	std::ofstream* outputFile = 0;
+
+	if( outputType == elecADCoutput::histogram ) ADCmaximumAll = new std::vector< Long_t >;
+	if( outputType == elecADCoutput::file )
+	{
+		outputFile = new std::ofstream("ElecOutput.paa", std::ios::out | std::ios::binary);
+   		if(!outputFile) 
+		{
+      		std::cout << "Cannot open file for output!" << std::endl;
+     		return;
+   		}
+		
+		// Coloca el identificador de archivo
+		outputFile->write("PAA 01\n", 7);
+		
+		// Headers en modo texto
+		outputFile->seekp(8);
+		outputFile->write("Elec: WCD tank electronics simulation program\n", 46);
+		outputFile->write("Version: 0.3-beta\n", 18);
+		outputFile->write("Build: Unknown\n", 15);
+
+		time_t now = time(NULL);
+		char itDateTime[30];
+        struct tm *it = localtime(&now);
+        strftime(itDateTime, sizeof(itDateTime)-1, "%c %Z", it);
+
+		outputFile->write(itDateTime, 28);
+		outputFile->write("\n", 1);
+
+		outputFile->write("Digitalized results from WCDTankSim data\n", 41);
+		
+		// Endianness check number 
+		outputFile->seekp (520);
+		uint32_t eci = 0x10203040;
+		outputFile->write( (char *)&eci, 4);
+
+		// Número de puntos por pulso (ps)
+		uint32_t ps = (uint32_t)ADC_Samples_per_Pulse;
+		outputFile->write( (char *)&ps, 4);
+
+		// Número de puntos por archivo (pc)
+		uint32_t pc = (uint32_t)NumberOfEvents;
+		outputFile->write( (char *)&pc, 4);
+
+		// Nivel de trigger (tk)
+		int32_t tl = (int32_t)std::floor( ( ADC_Trigger_Voltaje + ADC_VSignal_Offset ) / ADC_Dv ) ;
+		outputFile->write( (char *)&tl, 4);
+
+		// Nueve el puntero de incerción al pundo donde deben inciar los datos
+		outputFile->seekp( 640 );
+
+ 		ADC_cbuffer = new boost::circular_buffer<Double_t>( ADC_Samples_per_Pulse );
+	}
+
+
 	for( Long_t Event = 0; Event < NumberOfEvents; Event ++)
 	{
 		std::cout << "\rEvent: " << std::setw(8) << std::setfill('0') << Event << std::flush;
@@ -87,14 +135,18 @@ void elecADC::DigitalizeVoltageSignal( elecVoltageSignal* VoltageSignalData )
 			ADC_Btmp = std::floor(  ADC_Vtmp / ADC_Dv ); 
 
 			if( ADC_Btmp < 0 )
-				ADC_cbuffer->push_back( 0.0 );
+				ADC_Btmp = 0.0;
 			else if( ADC_Btmp > ( ADC_bins - 1 ) ) 
-				ADC_cbuffer->push_back( ADC_bins - 1 );
-			else
-				ADC_cbuffer->push_back( ADC_Btmp );
+				ADC_Btmp = ADC_bins - 1;
 
 			Time_array.at(i) = t_cur;
 			t_cur += Time_increment;
+
+			if( outputType == elecADCoutput::histogram ) 
+				if( ADC_Btmp < ADC_max ) ADC_max = ADC_Btmp;
+			
+			if( outputType == elecADCoutput::file ) 
+				ADC_cbuffer->push_back( ADC_Btmp );
 		}
 
 
@@ -111,27 +163,43 @@ void elecADC::DigitalizeVoltageSignal( elecVoltageSignal* VoltageSignalData )
 			} 
 			if( ADC_Btmp > ( ADC_bins - 1 ) )
 			{
-				ADC_cbuffer->push_back( ADC_bins - 1 );
+				ADC_Btmp = ADC_bins - 1;
 				ADC_overflow = true;
 			}
 			else if (  ADC_Btmp < 0 )
 			{
-				ADC_cbuffer->push_back( 0.0 );
+				ADC_Btmp =  0.0;
 				ADC_underflow = true;
 			}
-			else
-				ADC_cbuffer->push_back( ADC_Btmp );
-
-			if( ADC_Btmp < ADC_max ) ADC_max = ADC_Btmp;
 
 			Time_array.at(i) = t_cur;
 			t_cur += Time_increment;
+
+			if( outputType == elecADCoutput::histogram ) 
+				if( ADC_Btmp < ADC_max ) ADC_max = ADC_Btmp;
+			
+			if( outputType == elecADCoutput::file ) 
+				ADC_cbuffer->push_back( ADC_Btmp );
 		}
 
 		if(Trigger_exceeded)
 		{
-			ADCmaximumAll->push_back(ADC_max);
+			if( outputType == elecADCoutput::histogram ) ADCmaximumAll->push_back(ADC_max);
 
+			if( outputType == elecADCoutput::file ) 
+			{
+				if( Trigger_point > ADC_Pre_Trigger_Samples  )
+					Start_point = Trigger_point - ADC_Pre_Trigger_Samples ;
+				else
+					Start_point = ADC_Samples_per_Pulse - ADC_Pre_Trigger_Samples  + Trigger_point;
+
+				for(Long_t i = 0; i < ADC_Samples_per_Pulse ; ++i)
+				{
+					ADC_array[ i ] = ADC_cbuffer->at( ( Start_point + i ) % ADC_Samples_per_Pulse );
+					uint16_t cp = (uint16_t)ADC_array[ i ];
+					outputFile->write( (char *)&cp, 2);
+				}
+			}
 			if ( ADC_overflow )
 				std::cout << "\r" << std::setw(8) << std::setfill('0') << Event << ": ADC_overflow" << std::endl;
 			if ( ADC_underflow )
@@ -144,49 +212,52 @@ void elecADC::DigitalizeVoltageSignal( elecVoltageSignal* VoltageSignalData )
 		}
 	}
 
-	Int_t histll = (Int_t)*std::min_element(ADCmaximumAll->begin(), ADCmaximumAll->end());
-	Int_t histul = (Int_t)*std::max_element(ADCmaximumAll->begin(), ADCmaximumAll->end());
-	std::cout << "\r********************************" << std::endl;
-	std::cout << "Size of ADCmaximum: " << ADCmaximumAll->size() << std::endl;
-	std::cout << "Min of ADCmaximun: " << histll << std::endl;
-	std::cout << "Max of ADCmaximun: " << histul << std::endl;
-	std::cout << "********************************" << std::endl;
+	if( outputType == elecADCoutput::histogram )
+	{
+		int argc = 1;
+		char* argv[] = { (char*)"elec" };
 
-	TH1 *ADCmaxHistAll 		= new TH1D("H1","ADC pulse maximum (All)",100,histll, histul);
+		TApplication theApp("elec", &argc, argv);
+		if (gROOT->IsBatch()) 
+		{
+	  		fprintf(stderr, "%s: cannot run in batch mode\n", argv[0]);
+	  		return;
+		}
 
-	for( auto i: *ADCmaximumAll )
-		ADCmaxHistAll->Fill( i );
+		Int_t histll = (Int_t)*std::min_element(ADCmaximumAll->begin(), ADCmaximumAll->end());
+		Int_t histul = (Int_t)*std::max_element(ADCmaximumAll->begin(), ADCmaximumAll->end());
+		std::cout << "\r********************************" << std::endl;
+		std::cout << "Size of ADCmaximum: " << ADCmaximumAll->size() << std::endl;
+		std::cout << "Min of ADCmaximun: " << histll << std::endl;
+		std::cout << "Max of ADCmaximun: " << histul << std::endl;
+		std::cout << "********************************" << std::endl;
 
-	Long_t Start_point;
+		TH1 *ADCmaxHistAll 		= new TH1D("H1","ADC pulse maximum (All)",100,histll, histul);
 
-	if( Trigger_point > ADC_Pre_Trigger_Samples  )
-                Start_point = Trigger_point - ADC_Pre_Trigger_Samples ;
-            else
-                Start_point = ADC_Samples_per_Pulse - ADC_Pre_Trigger_Samples  + Trigger_point;
+		for( auto i: *ADCmaximumAll )
+			ADCmaxHistAll->Fill( i );
 
-	for(Long_t i = 0; i < ADC_Samples_per_Pulse ; ++i)
-        ADC_array[ i ] = ADC_cbuffer->at( ( Start_point + i ) % ADC_Samples_per_Pulse );
+		TCanvas *ShowHists = new TCanvas("Algo", "otro", 600, 400);
 
-	Double_t *Ta = &Time_array[0];
-	Double_t *Aa = &ADC_array[0];
+		ADCmaxHistAll->Draw();
+		ShowHists->Update();
+
+		ShowHists->Modified();
+		ShowHists->Connect("Closed()", "TApplication", gApplication, "Terminate()"); //new
+
+
+		theApp.Run();
+	}
+
+	if( outputType == elecADCoutput::file ) 
+	{
+		std::cout<< "\rFile ElecOutput.paa written with " << NumberOfEvents << " events data " << std::endl;
+		outputFile->close();
+	}
 	
-	TGraph *Circuit_C_Carge = new TGraph( ADC_Samples_per_Pulse, Ta, Aa);
+	if( outputType == elecADCoutput::none ) 
+	{
+		std::cout<< "\r----- :) ----- " << std::endl;
+	}
 
-
-	TCanvas *ShowHists = new TCanvas("Algo", "otro", 600, 400);
-	ShowHists->Divide(1,2);
-
-	ShowHists->cd(1);
-	ADCmaxHistAll->Draw();
-	ShowHists->Update();
-
-	ShowHists->cd(2);
-    Circuit_C_Carge->Draw("AL*");
-	ShowHists->Update();
-
-	ShowHists->Modified();
-	ShowHists->Connect("Closed()", "TApplication", gApplication, "Terminate()"); //new
-
-
-	theApp.Run();
 }

@@ -20,7 +20,7 @@ public:
 	elecADC(void);
 	~elecADC(void);
 
-	void DigitalizeVoltageSignal( elecVoltageSignal* VoltageSignalData );
+	void DigitalizeVoltageSignal( elecVoltageSignal* VoltageSignalData, elecADCoutput outputType );
 
 private:
 	Int_t		ADC_bits;
