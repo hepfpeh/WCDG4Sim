@@ -34,7 +34,7 @@ target_link_libraries(WCDtankSim ${Geant4_LIBRARIES} )
 
 #----------------------------------------------------------------------------
 # Copy all scripts to the build directory, i.e. the directory in which we
-# build RE02. This is so that we can run the executable directly because it
+# build WCDtankSim. This is so that we can run the executable directly because it
 # relies on these scripts being in the current working directory.
 #
 set(WCDtank_SCRIPTS

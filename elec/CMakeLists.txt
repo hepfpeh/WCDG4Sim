@@ -52,23 +52,6 @@ file(GLOB e_headers ${CMAKE_CURRENT_SOURCE_DIR}/include/*.hh)
 add_executable(ElecSim electronics.cc ${e_sources} ${e_headers})
 target_link_libraries(ElecSim cla ${ROOT_LIBRARIES} )
 
-#----------------------------------------------------------------------------
-# Copy all scripts to the build directory, i.e. the directory in which we
-# build RE02. This is so that we can run the executable directly because it
-# relies on these scripts being in the current working directory.
-#
-set(elec_SCRIPTS
-    pulses.C
-    pulses2.C
-    pulses3.C
-  )
 
-foreach(_script ${elec_SCRIPTS})
-  configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/${_script}
-    ${PROJECT_BINARY_DIR}/elec/${_script}
-    COPYONLY
-    )
-endforeach()
 
 
