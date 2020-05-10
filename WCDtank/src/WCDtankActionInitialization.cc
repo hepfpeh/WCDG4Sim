@@ -34,7 +34,7 @@ void WCDtankActionInitialization::Build() const
   SetUserAction(eventAction);
 
   SetUserAction(new WCDtankSteppingAction(eventAction));
-//  SetUserAction(new WCDtankStackingAction());
+  SetUserAction(new WCDtankStackingAction(eventAction));
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

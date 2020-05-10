@@ -35,8 +35,8 @@ class WCDtankPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     // method to set particle direction
     void SetParticleDirection( G4String );
 
-    // method to get particle azimuth angle
-    G4double GetParticleAzimuthAngle() const { return ParticleAzimuthAngle; }
+    // method to get particle Zenith angle
+    G4double GetParticleZenithAngle() const { return ParticleZenithAngle; }
 
     // method to know if the particle direction is vertical
     G4bool GetParticleVerticalDirectionFlag() const { return PrimaryParticleDirectionIsVertical; }
@@ -47,7 +47,7 @@ class WCDtankPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     G4Box* 								WorldBox;
     Direction 							ParticleDirection;
     WCDtankPrimaryGeneratorMessenger* 	fGunMessenger;
-    G4double 							ParticleAzimuthAngle;
+    G4double 							ParticleZenithAngle;
     G4bool		 						PrimaryParticleDirectionIsVertical;
 };
 

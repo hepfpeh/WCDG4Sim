@@ -52,7 +52,7 @@ void WCDtankSensitiveDetector::Initialize(G4HCofThisEvent* hitsCE)
 	  WCDtankSDHitsCollection->insert(hit);
 
 	  const WCDtankRunAction* runAction = static_cast<const WCDtankRunAction*>(G4RunManager::GetRunManager()->GetUserRunAction());
-	  hit->SetPhotonTime( runAction->GetVectorPointer() );
+	  hit->SetPhotoElectricPMTPhotonTime( runAction->GetVectorPointer() );
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -62,6 +62,7 @@ G4bool WCDtankSensitiveDetector::ProcessHits(G4Step* theStep,G4TouchableHistory*
 	//G4cout << "WCDtankSDHitsCollection value: " << WCDtankSDHitsCollection << G4endl;
 	WCDtankHit* hit;// = new WCDtankHit;
 	hit = (*WCDtankSDHitsCollection)[0];
+	hit->IncPMTPhotonCount();
 //	hit->IncPhotonCount();
 
 
@@ -116,8 +117,7 @@ G4bool WCDtankSensitiveDetector::ProcessHits(G4Step* theStep,G4TouchableHistory*
 //	G4cout << "\tQE: " << QuantumEfficiency;
 
 	if ( Nrand < QuantumEfficiency ){
-		hit->IncPhotonCount();
-		hit->AddPhotonTime( ArrivalTime );
+		hit->AddPhotoElectricPMTPhotonTime( ArrivalTime );
 //		G4cout << "\tHit counted";
 	}
 

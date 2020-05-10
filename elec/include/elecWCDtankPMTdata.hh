@@ -35,11 +35,12 @@ private:
 	Long64_t 				Entries;
 
 	Double_t 				Primary_Energy;
-	Double_t 				Cenit_angle;
+	Double_t 				Zenith_angle;
 	Int_t 					Direction;
 	Double_t 				Deposited_Energy;
 	Double_t 				Track_Length;
-	Double_t 				Photon_Count;
+	Double_t 				Cherenkov_Photon_Count;
+	Double_t 				PMT_Photon_Count;
 	std::vector<Double_t>*	PulseTimeData;
 };
 

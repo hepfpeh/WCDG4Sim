@@ -1,13 +1,15 @@
 // root script file
+#include <iostream>
+#include <cmath>
+#include <algorithm>
+#include <boost/circular_buffer.hpp>
 
 #include "TFile.h"
 #include "TTree.h"
 #include "TGraph.h"
 #include "TCanvas.h"
 #include "TRandom3.h"
-#include <cmath>
-#include <algorithm>
-#include <boost/circular_buffer.hpp>
+#include "TAxis.h"
 
 void GetHunapuPulse(const char* HunapuRootFileName, Int_t PulseNumber){
 	Long64_t Entries;
@@ -16,7 +18,7 @@ void GetHunapuPulse(const char* HunapuRootFileName, Int_t PulseNumber){
 	TFile *HunapuRootFile = new TFile( HunapuRootFileName );
 	TTree *Hunapu = (TTree*)HunapuRootFile->Get("WCDtank;1");
 	Entries = Hunapu->GetEntriesFast();	
-	Hunapu->SetBranchAddress("Photon_Arrival_Time",&PulseData);
+	Hunapu->SetBranchAddress("PMT_PhotoElectric_Photons_Time",&PulseData);
 
 	if (PulseNumber < Entries ) Hunapu->GetEntry(PulseNumber);
 	else { 
@@ -239,6 +241,7 @@ void GetHunapuPulse(const char* HunapuRootFileName, Int_t PulseNumber){
 
 
 //	TH1 *DataHistCumulative = DataHist->GetCumulative();
+
 	TGraph *Circuit_C_Carge = new TGraph( NumberOfSamples, Time_array, ADC_array);
 	Circuit_C_Carge->GetXaxis()->SetLimits(t_init,DataMax);
 	

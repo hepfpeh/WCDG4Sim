@@ -19,7 +19,7 @@ void AvRTGraph(const char* WCDTankDataRootFileName, TH2* AvRTHist){
 	TFile *WCDTankRootFile = new TFile( WCDTankDataRootFileName );
 	TTree *WCDTankData = (TTree*)WCDTankRootFile->Get("WCDtank;1");
 	Entries = WCDTankData->GetEntriesFast();	
-	WCDTankData->SetBranchAddress("Photon_Arrival_Time",&PulseData);
+	WCDTankData->SetBranchAddress("PMT_PhotoElectric_Photons_Time",&PulseData);
 
 /*
 	if (PulseNumber < Entries ) WCDTankData->GetEntry(PulseNumber);

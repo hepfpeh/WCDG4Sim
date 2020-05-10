@@ -20,6 +20,9 @@ class WCDtankEventAction : public G4UserEventAction
     void AddTrackLength(G4double tlen) { TrackLength += tlen; }
 
     G4int GetParticlePDGcode( ){ return PrimaryParticlePDGcode; }
+    /* Modification to get total number of Cherenkov photons */
+    void IncrementCherekovPhotons() { CherenkovPhotonsEmitted++; }
+    void ResetCherekovPhotons() { CherenkovPhotonsEmitted = 0; }
 
   private:
     G4double     DepositedEnergy;
@@ -27,8 +30,10 @@ class WCDtankEventAction : public G4UserEventAction
     G4String	 PrimaryParticleName;
     G4int		 PrimaryParticlePDGcode;
     G4double	 PrimaryParticleEnergy;
-    G4double	 PrimaryParticleAzimuthAngle;
+    G4double	 PrimaryParticleZenithAngle;
     G4bool		 PrimaryParticleIsVertical;
+    /* Modification to get total number of Cherenkov photons */
+    G4int      CherenkovPhotonsEmitted;
 
     G4int		 WCDtankSDHitsCollectionId;
 };

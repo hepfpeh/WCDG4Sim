@@ -13,10 +13,15 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
+/* Modification to get total number of Cherenkov photons */
+class WCDtankEventAction;
+
 class WCDtankStackingAction : public G4UserStackingAction
 {
   public:
-    WCDtankStackingAction();
+    //WCDtankStackingAction();
+    /* Modification to get total number of Cherenkov photons */
+    WCDtankStackingAction(WCDtankEventAction* eventAction);
     virtual ~WCDtankStackingAction();
 
   public:
@@ -25,8 +30,7 @@ class WCDtankStackingAction : public G4UserStackingAction
     virtual void PrepareNewEvent();
 
   private:
-    G4int fScintillationCounter;
-    G4int fCerenkovCounter;
+    WCDtankEventAction*  EventAction;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

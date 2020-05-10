@@ -1,11 +1,13 @@
 // root script file
+#include <iostream>
+#include <cmath>
+#include <algorithm>
 
 #include "TFile.h"
 #include "TTree.h"
 #include "TGraph.h"
 #include "TCanvas.h"
-#include <cmath>
-#include <algorithm>
+#include "TH1D.h"
 
 void GetHunapuPulse(const char* HunapuRootFileName, Int_t PulseNumber){
 	Long64_t Entries;
@@ -14,7 +16,7 @@ void GetHunapuPulse(const char* HunapuRootFileName, Int_t PulseNumber){
 	TFile *HunapuRootFile = new TFile( HunapuRootFileName );
 	TTree *Hunapu = (TTree*)HunapuRootFile->Get("WCDtank;1");
 	Entries = Hunapu->GetEntriesFast();	
-	Hunapu->SetBranchAddress("Photon_Arrival_Time",&PulseData);
+	Hunapu->SetBranchAddress("PMT_PhotoElectric_Photons_Time",&PulseData);
 
 	if (PulseNumber < Entries ) Hunapu->GetEntry(PulseNumber);
 	else { 
@@ -83,7 +85,7 @@ void GetHunapuPulse(const char* HunapuRootFileName, Int_t PulseNumber){
 	}
 
 
-	TH1 *DataHist = new TH1D("H1","Photon arrival time",25,0,DataMax);
+	TH1D *DataHist = new TH1D("H1","Photon arrival time",25,0,DataMax);
 	for( int i = 0 ; i < DataEntries ; i++ )
 		DataHist->Fill( PulseData->at( i ) );
 

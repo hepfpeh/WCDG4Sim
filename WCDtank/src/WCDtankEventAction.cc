@@ -22,7 +22,7 @@ WCDtankEventAction::WCDtankEventAction()
   TrackLength(0.),
   PrimaryParticlePDGcode(0.),
   PrimaryParticleEnergy(0.),
-  PrimaryParticleAzimuthAngle(0.),
+  PrimaryParticleZenithAngle(0.),
   PrimaryParticleIsVertical(FALSE),
   WCDtankSDHitsCollectionId(-1)
 
@@ -59,7 +59,7 @@ void WCDtankEventAction::BeginOfEventAction(const G4Event*)
 		PrimaryParticleName = particleGun->GetParticleDefinition()->GetParticleName();
 		PrimaryParticlePDGcode = particleGun->GetParticleDefinition()->GetPDGEncoding();
 		PrimaryParticleEnergy = particleGun->GetParticleEnergy();
-		PrimaryParticleAzimuthAngle = generatorAction->GetParticleAzimuthAngle();
+		PrimaryParticleZenithAngle = generatorAction->GetParticleZenithAngle();
 		PrimaryParticleIsVertical = generatorAction->GetParticleVerticalDirectionFlag();
 	}
 }
@@ -75,7 +75,7 @@ void WCDtankEventAction::EndOfEventAction(const G4Event* anEvent)
 /*	G4cout << "Primary particle PDG code: " << PrimaryParticlePDGcode << G4endl;
 	G4cout << "Primary particle name: " << PrimaryParticleName << G4endl;
 	G4cout << "Primary particle energy: " << G4BestUnit(PrimaryParticleEnergy,"Energy") << G4endl;
-	G4cout << "Primary particle incident azimuth angle: " << G4BestUnit(PrimaryParticleAzimuthAngle,"Angle") << G4endl;
+	G4cout << "Primary particle incident Zenith angle: " << G4BestUnit(PrimaryParticleZenithAngle,"Angle") << G4endl;
 	G4cout << "Primary particle direction is vertical?: ";
 
 	if( PrimaryParticleIsVertical )
@@ -92,7 +92,7 @@ void WCDtankEventAction::EndOfEventAction(const G4Event* anEvent)
 		if(WCDtankSDHitsCollectionId>=0) pmtHC = (WCDtankHitsCollection*)(hitsCE->GetHC(WCDtankSDHitsCollectionId));
 	}
 
-	G4int NumberOfPhotons = (*pmtHC)[0]->GetPhotonCount();
+	G4int NumberOfPMTPhotons = (*pmtHC)[0]->GetPMTPhotonCount();
 //	G4cout << "Photons detected in this event: " << NumberOfPhotons << G4endl;
 
 	// get analysis manager
@@ -100,7 +100,7 @@ void WCDtankEventAction::EndOfEventAction(const G4Event* anEvent)
 
 	// fill ntuple
 	analysisManager->FillNtupleDColumn(0, PrimaryParticleEnergy);
-	analysisManager->FillNtupleDColumn(1, PrimaryParticleAzimuthAngle);
+	analysisManager->FillNtupleDColumn(1, PrimaryParticleZenithAngle);
 
 	if( PrimaryParticleIsVertical )
 		analysisManager->FillNtupleIColumn(2, 1);
@@ -109,7 +109,8 @@ void WCDtankEventAction::EndOfEventAction(const G4Event* anEvent)
 
 	analysisManager->FillNtupleDColumn(3, DepositedEnergy);
 	analysisManager->FillNtupleDColumn(4, TrackLength);
-	analysisManager->FillNtupleDColumn(5, NumberOfPhotons);
+	analysisManager->FillNtupleDColumn(5, CherenkovPhotonsEmitted);
+	analysisManager->FillNtupleDColumn(6, NumberOfPMTPhotons);
 
 /*
 	const WCDtankRunAction* runAction = static_cast<const WCDtankRunAction*>(G4RunManager::GetRunManager()->GetUserRunAction());
@@ -118,8 +119,8 @@ void WCDtankEventAction::EndOfEventAction(const G4Event* anEvent)
 */
 	analysisManager->AddNtupleRow();
 
-	(*pmtHC)[0]->ResetPhotonCount();
-	(*pmtHC)[0]->ResetPhotonTime();
+	(*pmtHC)[0]->ResetPMTPhotonCount();
+	(*pmtHC)[0]->ResetPhotoElectricPMTPhotonTime();
 
 }
 

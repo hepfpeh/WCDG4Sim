@@ -27,19 +27,19 @@ class WCDtankHit : public G4VHit
     inline void *operator new(size_t);
     inline void operator delete(void *aHit);
 
-    inline void IncPhotonCount(){WCDtankPhotonsPerEvent++;}
-    inline void AddPhotonTime( G4double Time ){PhotonArrivalTime->push_back( Time );}
-    inline void SetPhotonTime( std::vector<G4double>* aVector ){ PhotonArrivalTime = aVector;}
-    inline G4int GetPhotonCount(){return WCDtankPhotonsPerEvent;}
-    inline G4int GetPhotonTimeSize(){return PhotonArrivalTime->size();}
-    inline std::vector<G4double>* GetPhotonTime(){return PhotonArrivalTime;}
-    inline void ResetPhotonCount(){WCDtankPhotonsPerEvent=0;}
-    inline void ResetPhotonTime(){PhotonArrivalTime->clear();}
+    inline void IncPMTPhotonCount(){WCDtankTotalPMTPhotons++;}
+    inline void AddPhotoElectricPMTPhotonTime( G4double Time ){WCDtankPhotoElectricPMTPhotonsTime->push_back( Time );}
+    inline void SetPhotoElectricPMTPhotonTime( std::vector<G4double>* aVector ){ WCDtankPhotoElectricPMTPhotonsTime = aVector;}
+    inline G4int GetPMTPhotonCount(){return WCDtankTotalPMTPhotons;}
+    inline G4int GetPhotoElectricPMTPhotonTimeSize(){return WCDtankPhotoElectricPMTPhotonsTime->size();}
+    inline std::vector<G4double>* GetPhotoElecticPMTPhotonTime(){return WCDtankPhotoElectricPMTPhotonsTime;}
+    inline void ResetPMTPhotonCount(){WCDtankTotalPMTPhotons=0;}
+    inline void ResetPhotoElectricPMTPhotonTime(){WCDtankPhotoElectricPMTPhotonsTime->clear();}
 
   private:
 
-    G4int 					WCDtankPhotonsPerEvent;
-    std::vector<G4double>	*PhotonArrivalTime;
+    G4int 					WCDtankTotalPMTPhotons;
+    std::vector<G4double>	*WCDtankPhotoElectricPMTPhotonsTime;
 
 };
 

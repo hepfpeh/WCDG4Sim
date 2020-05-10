@@ -30,7 +30,7 @@ WCDtankPrimaryGeneratorAction::WCDtankPrimaryGeneratorAction()
   WorldBox(0),
   ParticleDirection(All),
   fGunMessenger(0),
-  ParticleAzimuthAngle(0),
+  ParticleZenithAngle(0),
   PrimaryParticleDirectionIsVertical(FALSE)
 {
   G4int n_particle = 1;
@@ -193,7 +193,7 @@ void WCDtankPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 					break;
 	  }
 
-	  ParticleAzimuthAngle = e_theta;
+	  ParticleZenithAngle = e_theta;
 
 		/*
 		 * Coordenadas de la pistola de particulas

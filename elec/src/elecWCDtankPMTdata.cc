@@ -33,11 +33,12 @@ elecWCDtankPMTdata::elecWCDtankPMTdata(void)
 	Entries				= -1;
 
 	Primary_Energy		= -1;
-	Cenit_angle			= -1;
+	Zenith_angle			= -1;
 	Direction			= -1;
 	Deposited_Energy	= -1;
 	Track_Length		= -1;
-	Photon_Count		= -1;
+	Cherenkov_Photon_Count		= -1;
+	PMT_Photon_Count	= -1;
 	PulseTimeData		= 0;
 }
 
@@ -51,12 +52,13 @@ void elecWCDtankPMTdata::LoadRootFile( const char* RootFileName)
 
 	std::cout << "Ramas en " << RootFileName << ": " << PMTdata->GetListOfBranches()->GetEntries() << std::endl;
 	PMTdata->SetBranchAddress("Primary_Energy",		&Primary_Energy);
-	PMTdata->SetBranchAddress("Azimuth_angle",		&Cenit_angle);
+	PMTdata->SetBranchAddress("Zenith_angle",		&Zenith_angle);
 	PMTdata->SetBranchAddress("Direction",			&Direction);
 	PMTdata->SetBranchAddress("Deposited_Energy",	&Deposited_Energy);
 	PMTdata->SetBranchAddress("Track_Length",		&Track_Length);
-	PMTdata->SetBranchAddress("Photon_Count",		&Photon_Count);
-	PMTdata->SetBranchAddress("Photon_Arrival_Time",&PulseTimeData);
+	PMTdata->SetBranchAddress("Cherenkov_Photon_Count",		&Cherenkov_Photon_Count);
+	PMTdata->SetBranchAddress("PMT_Photon_Count",		&PMT_Photon_Count);
+	PMTdata->SetBranchAddress("PMT_PhotoElectric_Photons_Time",&PulseTimeData);
 
 	Entries = PMTdata->GetEntriesFast();
 
