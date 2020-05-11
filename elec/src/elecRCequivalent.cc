@@ -35,7 +35,8 @@ void elecRCequivalent::PMTPhotonsToVoltageSignal(elecWCDtankPMTdata* PMTdata, el
 	Long64_t DataEntries = PMTdata->GetNumberOfPulses();
 
 	elecSignalPoint *PMTSPoint = new elecSignalPoint;
-	elecEventSignal *PMTSignal = new elecEventSignal;
+	elecEvent *PMTEvent = new elecEvent;
+	elecEventSignal *PMTSignal = &(PMTEvent->EvenSignal);
 
 	for( Long64_t EventNumber = 0;  EventNumber < DataEntries; EventNumber++)
 	{
@@ -79,7 +80,8 @@ void elecRCequivalent::PMTPhotonsToVoltageSignal(elecWCDtankPMTdata* PMTdata, el
 			A_ant = A_cur;
 		}
 
-		PMTOutputSignal->AppendEventData(PMTSignal);
+		PMTEvent->EventInfo = PMTdata->GetEventInfo();
+		PMTOutputSignal->AppendEventData(PMTEvent);
 		PMTOutputSignal->SetKConstant(Const_k);
 
 		PMTSignal->clear();

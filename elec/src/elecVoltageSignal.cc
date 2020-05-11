@@ -37,7 +37,7 @@ Double_t    elecVoltageSignal::GetMinTime( Long_t Event )
         return 0.0;
     }
 
-    return ((PMTEventsData->at( Event )).at(1)).Time;
+    return (PMTEventsData->at( Event ).EvenSignal.at(1)).Time;
 }
 
 Double_t 	elecVoltageSignal::GetVoltage( Long_t Event, Double_t Time )
@@ -48,9 +48,9 @@ Double_t 	elecVoltageSignal::GetVoltage( Long_t Event, Double_t Time )
         return 0.0;
     }
     
-    Double_t Min_time = ((PMTEventsData->at( Event )).at(1)).Time;
+    Double_t Min_time = PMTEventsData->at( Event ).EvenSignal.at(1).Time;
     Int_t Table_pos = 0;
-	Int_t Table_size = (PMTEventsData->at( Event )).size();
+	Int_t Table_size = PMTEventsData->at( Event ).EvenSignal.size();
 	Double_t Vtmp = 0;
 
     if( Event == Cache_Event )
@@ -76,13 +76,13 @@ Double_t 	elecVoltageSignal::GetVoltage( Long_t Event, Double_t Time )
     }
     else
     {
-        while( ( (PMTEventsData->at( Event ).at( Table_pos )).Time < Time ) && ( Table_pos < ( Table_size - 1 ) ) )
+        while( ( PMTEventsData->at( Event ).EvenSignal.at( Table_pos ).Time < Time ) && ( Table_pos < ( Table_size - 1 ) ) )
 				Table_pos++;
 		
         if( Table_pos-- < 0 ) Table_pos = 0;
 		
-        Double_t V_n = ( ( PMTEventsData->at( Event ) ).at( Table_pos ) ).Voltage;
-		Double_t t_n = ( ( PMTEventsData->at( Event ) ).at( Table_pos ) ).Time;
+        Double_t V_n = PMTEventsData->at( Event ).EvenSignal.at( Table_pos ).Voltage;
+		Double_t t_n = PMTEventsData->at( Event ).EvenSignal.at( Table_pos ).Time;
 
         Vtmp =  V_n * exp( -( KConstant ) * ( Time - t_n ) );
 		Vtmp += gRandom->Gaus( VBLMean, VBLDev );
@@ -93,8 +93,8 @@ Double_t 	elecVoltageSignal::GetVoltage( Long_t Event, Double_t Time )
     return Vtmp;
 }
 
-void		elecVoltageSignal::AppendEventData( elecEventSignal* EventData )
+void		elecVoltageSignal::AppendEventData( elecEvent* aEvent )
 {
-    PMTEventsData->push_back( *EventData );
+    PMTEventsData->push_back( *aEvent );
     Entries = PMTEventsData->size();
 }

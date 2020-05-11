@@ -53,8 +53,8 @@ WCDtankRunAction::WCDtankRunAction()
 	analysisManager->CreateNtupleIColumn("Direction");
 	analysisManager->CreateNtupleDColumn("Deposited_Energy");
 	analysisManager->CreateNtupleDColumn("Track_Length");
-	analysisManager->CreateNtupleDColumn("Cherenkov_Photon_Count");
-	analysisManager->CreateNtupleDColumn("PMT_Photon_Count");
+	analysisManager->CreateNtupleIColumn("Cherenkov_Photon_Count");
+	analysisManager->CreateNtupleIColumn("PMT_Photon_Count");
 //	analysisManager->CreateNtupleDColumn("Photon_Arrival_Time", G4dVector );
 	analysisManager->CreateNtupleDColumn("PMT_PhotoElectric_Photons_Time", *G4dVectorPointer );
 	analysisManager->FinishNtuple();

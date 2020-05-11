@@ -26,7 +26,7 @@ public:
 	Long64_t GetNumberOfPulses(void){ return Entries; };
 
 	void					SetPulse 			( Long64_t PulseNumber = 0 );
-	Int_t 					GetPulseOrientation ( void );
+	WCDtankEventInfo 		GetEventInfo		( void );
 	std::vector<G4double>* 	GetPulseTimeData	( void );
 
 
@@ -39,8 +39,8 @@ private:
 	Int_t 					Direction;
 	Double_t 				Deposited_Energy;
 	Double_t 				Track_Length;
-	Double_t 				Cherenkov_Photon_Count;
-	Double_t 				PMT_Photon_Count;
+	Int_t	 				Cherenkov_Photon_Count;
+	Int_t	 				PMT_Photon_Count;
 	std::vector<Double_t>*	PulseTimeData;
 };
 

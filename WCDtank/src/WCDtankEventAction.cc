@@ -109,8 +109,8 @@ void WCDtankEventAction::EndOfEventAction(const G4Event* anEvent)
 
 	analysisManager->FillNtupleDColumn(3, DepositedEnergy);
 	analysisManager->FillNtupleDColumn(4, TrackLength);
-	analysisManager->FillNtupleDColumn(5, CherenkovPhotonsEmitted);
-	analysisManager->FillNtupleDColumn(6, NumberOfPMTPhotons);
+	analysisManager->FillNtupleIColumn(5, CherenkovPhotonsEmitted);
+	analysisManager->FillNtupleIColumn(6, NumberOfPMTPhotons);
 
 /*
 	const WCDtankRunAction* runAction = static_cast<const WCDtankRunAction*>(G4RunManager::GetRunManager()->GetUserRunAction());

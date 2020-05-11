@@ -17,19 +17,20 @@ public:
 	elecVoltageSignal(void);
 	~elecVoltageSignal(void);
 
-	Long64_t 	GetNumberOfEvents(void){ return Entries; };
-	Double_t 	GetMinTime( Long_t Event );
-	Double_t 	GetVoltage( Long_t Event, Double_t Time );
+	Long64_t 			GetNumberOfEvents(void){ return Entries; };
+	Double_t 			GetMinTime( Long_t Event );
+	Double_t 			GetVoltage( Long_t Event, Double_t Time );
+	WCDtankEventInfo 	GetEventInfo( Long64_t Event ) { return PMTEventsData->at(Event).EventInfo; };
 
-	void		SetKConstant( Double_t K ) { KConstant = K; };
-	void		SetBaseLineVoltageMean( Double_t VMean ) { VBLMean = VMean; };
-	void		SetBaseLineVoltageDev( Double_t VDev ) { VBLDev = VDev; };
+	void	SetKConstant( Double_t K ) { KConstant = K; };
+	void	SetBaseLineVoltageMean( Double_t VMean ) { VBLMean = VMean; };
+	void	SetBaseLineVoltageDev( Double_t VDev ) { VBLDev = VDev; };
 
-	void		AppendEventData( elecEventSignal* EventData );
+	void	AppendEventData( elecEvent* aEvent );
 
 private:
 	Long64_t 				Entries;
-    elecEventCollection*     PMTEventsData;
+    elecEventCollection*    PMTEventsData;
 	Double_t				KConstant;
 	/* 
 	 * VBLMean es el voltaje de linea (baseline)

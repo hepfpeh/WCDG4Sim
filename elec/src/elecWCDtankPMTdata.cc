@@ -83,7 +83,17 @@ std::vector< Double_t >* elecWCDtankPMTdata::GetPulseTimeData( void )
 	return PulseTimeData;
 }
 
-Int_t elecWCDtankPMTdata::GetPulseOrientation( void )
+WCDtankEventInfo elecWCDtankPMTdata::GetEventInfo( void )
 {
-	return Direction;
+	WCDtankEventInfo tmp;
+
+	tmp.Primary_Energy			= Primary_Energy;
+	tmp.Zenith_angle			= Zenith_angle;
+	tmp.Direction				= Direction;
+	tmp.Deposited_Energy		= Deposited_Energy;
+	tmp.Track_Length			= Track_Length;
+	tmp.Cherenkov_Photon_Count	= Cherenkov_Photon_Count;
+	tmp.PMT_Photon_Count		= PMT_Photon_Count;
+	
+	return tmp;
 }

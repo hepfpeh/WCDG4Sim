@@ -18,13 +18,16 @@ add_subdirectory(elec)
 #----------------------------------------------------------------------------
 # Copy all scripts to the build directory.
 #
+
+file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/ROOT-Scripts )
+
 set(ROOT_SCRIPTS
     pulses.C
     pulses2.C
     pulses3.C
   )
 
-foreach(_script ${elec_SCRIPTS})
+foreach(_script ${ROOT_SCRIPTS})
   configure_file(
     ${PROJECT_SOURCE_DIR}/ROOT-Scripts/${_script}
     ${PROJECT_BINARY_DIR}/ROOT-Scripts/${_script}

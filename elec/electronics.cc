@@ -35,7 +35,7 @@ int main(int argc, char **argv){
 	elecADC* HunapuADC = new elecADC;
 
 //	HunapuADC->DigitalizeVoltageSignal(HunapuVoltageSignal, elecADCoutput::histogram);
-	HunapuADC->DigitalizeVoltageSignal(HunapuVoltageSignal, elecADCoutput::file);
+	HunapuADC->DigitalizeVoltageSignal(HunapuVoltageSignal, elecADCoutput::ROOTfile);
 
 	/*
 	char aChar;

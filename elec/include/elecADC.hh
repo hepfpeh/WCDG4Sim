@@ -13,7 +13,7 @@
 
 class elecVoltageSignal;
 
-enum class elecADCoutput { file, histogram, none };
+enum class elecADCoutput { PAAfile, ROOTfile, histogram, none };
 
 class elecADC {
 public:
@@ -28,7 +28,7 @@ private:
 	Double_t	ADC_VSignal_Offset;
 	Double_t	ADC_Sample_Rate;
 	Int_t		ADC_Samples_per_Pulse;
-	Double_t	ADC_Trigger_Voltaje;
+	Double_t	ADC_Trigger_Voltage;
 	Int_t		ADC_Pre_Trigger_Samples;
 };
 
