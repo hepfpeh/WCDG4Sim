@@ -30,10 +30,10 @@ elecADC::elecADC(void)
 	ADC_bits = 14;
 	ADC_Vref = 2.0; // Volts. (GND=0)
 	ADC_VSignal_Offset = 1.0; // Volts. Offset a la señal de entrada del ADC.
-	ADC_Sample_Rate = 125.0; // MHz.
-	ADC_Samples_per_Pulse = 1000;
+	ADC_Sample_Rate = 500.0; // MHz.
+	ADC_Samples_per_Pulse = 256;
 	ADC_Trigger_Voltage = -0.003; // Volts.
-	ADC_Pre_Trigger_Samples = 5;
+	ADC_Pre_Trigger_Samples = 60;
 }
 
 elecADC::~elecADC(void)
@@ -66,23 +66,24 @@ void elecADC::DigitalizeVoltageSignal( elecVoltageSignal* VoltageSignalData, ele
 	if( outputType == elecADCoutput::ROOTfile )
 	{
 		ROOTOutputFile = new TFile("ElecOutput.root","recreate");
-		ADC_Parameters = new TNtuple("ADC_CP",
-									 "ADC configuration parameters",
-									 "Bits:Vref:Sample_Rate:Signal_Offset:Samples_per_Pulse:Trigger_Voltage:Pre_Trigger_Samples"
+		ADC_Parameters = new TNtuple("ElecSim_info",
+									 "Digitalization parameters",
+									 "ADC_Bits:ADC_Vref:ADC_Vin_Offset:Sample_Rate:Trigger_Voltage:Samples_per_Pulse:Pre_Trigger_Samples"
 									);
 		ADC_Parameters->Fill(ADC_bits,
 							 ADC_Vref,
-							 ADC_Sample_Rate,
 							 ADC_VSignal_Offset,
-							 ADC_Samples_per_Pulse,
+							 ADC_Sample_Rate,
 							 ADC_Trigger_Voltage,
+							 ADC_Samples_per_Pulse,
 							 ADC_Pre_Trigger_Samples
 							);
 		ADC_Parameters->Write();
 
 		PMTEventInfo = new WCDtankEventInfo;
-		ADC_Output = new TTree("ACD_Output","Digitalized signal");
-		ADC_Output->Branch("Primary_Energy",&(PMTEventInfo->Primary_Energy));
+		ADC_Output = new TTree("ElecSim_Output","WCDtankSim info and digitalized output");
+		ADC_Output->Branch("PDG_Code",&(PMTEventInfo->PDG_Code));
+		ADC_Output->Branch("Energy",&(PMTEventInfo->Energy));
 		ADC_Output->Branch("Zenith_angle",&(PMTEventInfo->Zenith_angle));
 		ADC_Output->Branch("Direction",&(PMTEventInfo->Direction));
 		ADC_Output->Branch("Deposited_Energy",&(PMTEventInfo->Deposited_Energy));

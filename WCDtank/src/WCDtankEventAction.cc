@@ -99,18 +99,19 @@ void WCDtankEventAction::EndOfEventAction(const G4Event* anEvent)
 	G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
 
 	// fill ntuple
-	analysisManager->FillNtupleDColumn(0, PrimaryParticleEnergy);
-	analysisManager->FillNtupleDColumn(1, PrimaryParticleZenithAngle);
+	analysisManager->FillNtupleIColumn(0, PrimaryParticlePDGcode);
+	analysisManager->FillNtupleDColumn(1, PrimaryParticleEnergy);
+	analysisManager->FillNtupleDColumn(2, PrimaryParticleZenithAngle);
 
 	if( PrimaryParticleIsVertical )
-		analysisManager->FillNtupleIColumn(2, 1);
+		analysisManager->FillNtupleIColumn(3, 1);
 	else
-		analysisManager->FillNtupleIColumn(2, 0);
+		analysisManager->FillNtupleIColumn(3, 0);
 
-	analysisManager->FillNtupleDColumn(3, DepositedEnergy);
-	analysisManager->FillNtupleDColumn(4, TrackLength);
-	analysisManager->FillNtupleIColumn(5, CherenkovPhotonsEmitted);
-	analysisManager->FillNtupleIColumn(6, NumberOfPMTPhotons);
+	analysisManager->FillNtupleDColumn(4, DepositedEnergy);
+	analysisManager->FillNtupleDColumn(5, TrackLength);
+	analysisManager->FillNtupleIColumn(6, CherenkovPhotonsEmitted);
+	analysisManager->FillNtupleIColumn(7, NumberOfPMTPhotons);
 
 /*
 	const WCDtankRunAction* runAction = static_cast<const WCDtankRunAction*>(G4RunManager::GetRunManager()->GetUserRunAction());

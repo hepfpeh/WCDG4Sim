@@ -48,7 +48,8 @@ WCDtankRunAction::WCDtankRunAction()
 	//
 
 	analysisManager->CreateNtuple("WCDtank", "Data");
-	analysisManager->CreateNtupleDColumn("Primary_Energy");
+	analysisManager->CreateNtupleIColumn("PDG_Code");
+	analysisManager->CreateNtupleDColumn("Energy");
 	analysisManager->CreateNtupleDColumn("Zenith_angle");
 	analysisManager->CreateNtupleIColumn("Direction");
 	analysisManager->CreateNtupleDColumn("Deposited_Energy");

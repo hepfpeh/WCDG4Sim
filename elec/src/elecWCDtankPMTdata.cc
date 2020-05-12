@@ -32,7 +32,8 @@ elecWCDtankPMTdata::elecWCDtankPMTdata(void)
 	PMTdata				= 0;
 	Entries				= -1;
 
-	Primary_Energy		= -1;
+	PDG_Code	= -1;
+	Energy		= -1;
 	Zenith_angle			= -1;
 	Direction			= -1;
 	Deposited_Energy	= -1;
@@ -51,7 +52,8 @@ void elecWCDtankPMTdata::LoadRootFile( const char* RootFileName)
 	PMTdata = (TTree*)RootFile->Get("WCDtank;1");
 
 	std::cout << "Ramas en " << RootFileName << ": " << PMTdata->GetListOfBranches()->GetEntries() << std::endl;
-	PMTdata->SetBranchAddress("Primary_Energy",		&Primary_Energy);
+	PMTdata->SetBranchAddress("PDG_Code",		&PDG_Code);
+	PMTdata->SetBranchAddress("Energy",		&Energy);
 	PMTdata->SetBranchAddress("Zenith_angle",		&Zenith_angle);
 	PMTdata->SetBranchAddress("Direction",			&Direction);
 	PMTdata->SetBranchAddress("Deposited_Energy",	&Deposited_Energy);
@@ -87,7 +89,8 @@ WCDtankEventInfo elecWCDtankPMTdata::GetEventInfo( void )
 {
 	WCDtankEventInfo tmp;
 
-	tmp.Primary_Energy			= Primary_Energy;
+	tmp.PDG_Code				= PDG_Code;
+	tmp.Energy					= Energy;
 	tmp.Zenith_angle			= Zenith_angle;
 	tmp.Direction				= Direction;
 	tmp.Deposited_Energy		= Deposited_Energy;

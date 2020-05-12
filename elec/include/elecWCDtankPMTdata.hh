@@ -34,7 +34,8 @@ private:
 	TTree*	 				PMTdata;
 	Long64_t 				Entries;
 
-	Double_t 				Primary_Energy;
+	Int_t					PDG_Code;
+	Double_t 				Energy;
 	Double_t 				Zenith_angle;
 	Int_t 					Direction;
 	Double_t 				Deposited_Energy;
