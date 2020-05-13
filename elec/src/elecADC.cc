@@ -59,10 +59,10 @@ void elecADC::DigitalizeVoltageSignal( elecVoltageSignal* VoltageSignalData, ele
 	boost::circular_buffer<Double_t>* ADC_cbuffer = 0;
 
 	/* Archivo y árboles para la salida ROOTfile */
-	TFile *ROOTOutputFile;
-	TNtuple *ADC_Parameters;
-	TTree *ADC_Output;
-	WCDtankEventInfo *PMTEventInfo;
+	TFile *ROOTOutputFile = 0;
+	TNtuple *ADC_Parameters = 0;
+	TTree *ADC_Output = 0;
+	WCDtankEventInfo *PMTEventInfo = 0;
 	if( outputType == elecADCoutput::ROOTfile )
 	{
 		ROOTOutputFile = new TFile("ElecOutput.root","recreate");

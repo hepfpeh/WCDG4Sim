@@ -227,11 +227,31 @@ void WCDtankPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 		G4double ParticleGun_xDirection = - std::sin(e_theta)*std::sin(e_phi);
 	  G4double ParticleGun_yDirection = - std::sin(e_theta)*std::cos(e_phi);
 	  G4double ParticleGun_zDirection = - std::cos(e_theta);
+	
+	/* Generación de energía inicial aleatoria. De momento solo se generan 
+	 * de forma uniforme entre 200 MeV y 4 GeV */
 
-	  fParticleGun->SetParticlePosition( G4ThreeVector( ParticleGun_xCoordinate , ParticleGun_yCoordinate , ParticleGun_zCoordinate ) );
-	  fParticleGun->SetParticleMomentumDirection( G4ThreeVector( ParticleGun_xDirection , ParticleGun_yDirection , ParticleGun_zDirection ) );
+	G4double EKinetic= 200*MeV + 3.8*GeV*G4UniformRand();
 
-	  fParticleGun->GeneratePrimaryVertex(anEvent);
+	/* Elección aleatoria entre electrones y muones */
+
+	G4ParticleTable *theParticleTable = G4ParticleTable::GetParticleTable();;
+	G4ParticleDefinition *theParticle = 0;
+	G4int select = (G4int)(0.5+G4UniformRand());
+
+	switch (select)
+	{
+		case 0 : theParticle = theParticleTable->FindParticle("mu-"); break;
+		case 1 : theParticle = theParticleTable->FindParticle("e-"); break;
+		default: break;
+	}
+
+	fParticleGun->SetParticleDefinition(theParticle);
+	fParticleGun->SetParticleEnergy(EKinetic);
+	fParticleGun->SetParticlePosition( G4ThreeVector( ParticleGun_xCoordinate , ParticleGun_yCoordinate , ParticleGun_zCoordinate ) );
+	fParticleGun->SetParticleMomentumDirection( G4ThreeVector( ParticleGun_xDirection , ParticleGun_yDirection , ParticleGun_zDirection ) );
+
+	fParticleGun->GeneratePrimaryVertex(anEvent);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
