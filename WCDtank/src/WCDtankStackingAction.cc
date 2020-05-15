@@ -8,6 +8,7 @@
 
 #include "WCDtankStackingAction.hh"
 #include "WCDtankEventAction.hh"
+#include "WCDtankDetectorConstruction.hh"
 
 #include "G4VProcess.hh"
 
@@ -15,6 +16,7 @@
 #include "G4ParticleTypes.hh"
 #include "G4Track.hh"
 #include "G4ios.hh"
+#include "G4RunManager.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -40,19 +42,24 @@ WCDtankStackingAction::ClassifyNewTrack(const G4Track * aTrack)
 {
   if(aTrack->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition())
   { // particle is optical photon
-    if(aTrack->GetParentID()>0)
+    if(aTrack->GetParentID()==1)
     { // particle is secondary
       if(aTrack->GetCreatorProcess()->GetProcessName() == "Cerenkov")
         EventAction->IncrementCherekovPhotons();
     }
   }
+
   return fUrgent;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void WCDtankStackingAction::NewStage()
-{}
+{
+
+  // G4cout << "Number of Cerenkov photons produced in this event : "
+  //        << EventAction->GetCherenkovPhotons() << G4endl;
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 

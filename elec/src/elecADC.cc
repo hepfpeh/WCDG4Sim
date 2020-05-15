@@ -324,11 +324,17 @@ void elecADC::DigitalizeVoltageSignal( elecVoltageSignal* VoltageSignalData, ele
 		ADC_Output->Write();
 		ROOTOutputFile->Close();
 		std::cout<< "\rFile ElecOutput.root written with " << NumberOfEvents << " events data " << std::endl;
+		//std::cout<<"Press enter";
+		//std::cin.get();
+		//std::cout<<std::endl;
 	}
 	
 	if( outputType == elecADCoutput::none ) 
 	{
 		std::cout<< "\r----- :) ----- " << std::endl;
+		//std::cout<<"Press enter";
+		//std::cin.get();
+		//std::cout<<std::endl;
 	}
 
 }

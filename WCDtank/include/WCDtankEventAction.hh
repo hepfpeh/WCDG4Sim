@@ -21,6 +21,7 @@ class WCDtankEventAction : public G4UserEventAction
 
     G4int GetParticlePDGcode( ){ return PrimaryParticlePDGcode; }
     /* Modification to get total number of Cherenkov photons */
+    G4int GetCherenkovPhotons(){ return CherenkovPhotonsEmitted; }
     void IncrementCherekovPhotons() { CherenkovPhotonsEmitted++; }
     void ResetCherekovPhotons() { CherenkovPhotonsEmitted = 0; }
 

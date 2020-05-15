@@ -15,6 +15,7 @@
 
 /* Modification to get total number of Cherenkov photons */
 class WCDtankEventAction;
+class G4LogicalVolume;
 
 class WCDtankStackingAction : public G4UserStackingAction
 {

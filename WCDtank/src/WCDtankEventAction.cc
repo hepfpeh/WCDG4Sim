@@ -93,7 +93,8 @@ void WCDtankEventAction::EndOfEventAction(const G4Event* anEvent)
 	}
 
 	G4int NumberOfPMTPhotons = (*pmtHC)[0]->GetPMTPhotonCount();
-//	G4cout << "Photons detected in this event: " << NumberOfPhotons << G4endl;
+
+	// G4cout << "Cherenkov Photons in this event: " << CherenkovPhotonsEmitted << G4endl;
 
 	// get analysis manager
 	G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
