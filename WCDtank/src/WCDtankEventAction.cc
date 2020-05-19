@@ -93,6 +93,7 @@ void WCDtankEventAction::EndOfEventAction(const G4Event* anEvent)
 	}
 
 	G4int NumberOfPMTPhotons = (*pmtHC)[0]->GetPMTPhotonCount();
+	// G4int NumberOfPMTPhotoElectrons = (*pmtHC)[0]->GetPMTPhotoElectronCount();
 
 	// G4cout << "Cherenkov Photons in this event: " << CherenkovPhotonsEmitted << G4endl;
 
@@ -113,15 +114,31 @@ void WCDtankEventAction::EndOfEventAction(const G4Event* anEvent)
 	analysisManager->FillNtupleDColumn(5, TrackLength);
 	analysisManager->FillNtupleIColumn(6, CherenkovPhotonsEmitted);
 	analysisManager->FillNtupleIColumn(7, NumberOfPMTPhotons);
+	// analysisManager->FillNtupleIColumn(8, NumberOfPMTPhotoElectrons);
 
-/*
-	const WCDtankRunAction* runAction = static_cast<const WCDtankRunAction*>(G4RunManager::GetRunManager()->GetUserRunAction());
 
-	G4cout << "Photon time size: " << (*pmtHC)[0]->GetPhotonTimeSize() << " pointer: " << runAction->GetVectorPointer() << G4endl;
-*/
+	// const WCDtankRunAction* runAction = static_cast<const WCDtankRunAction*>(G4RunManager::GetRunManager()->GetUserRunAction());
+
+	// G4cout << "Photon time size: " << (*pmtHC)[0]->GetPhotonTimeSize() << " pointer: " << runAction->GetVectorPointer() << G4endl;
+	
+	// G4cout << "\n"
+	// 	   << anEvent->GetEventID()
+	//        << " PMT PhotoElectric count: "
+	//        << (*pmtHC)[0]->GetPMTPhotoElectronCount()
+	// 	   << " PhotoElectricTime size: "
+	// 	   << (*pmtHC)[0]->GetPhotoElectricPMTPhotonTimeSize()
+	// 	   << " Arrived: "
+	// 	   << NumberOfPMTPhotons
+	// 	   << " ratios: "
+	// 	   << ( (*pmtHC)[0]->GetPhotoElectricPMTPhotonTimeSize() + 0.0 ) / NumberOfPMTPhotons
+	// 	   << " "
+	//        << ( (*pmtHC)[0]->GetPMTPhotoElectronCount() + 0.0 ) / NumberOfPMTPhotons
+	// 	   << G4endl;
+	
 	analysisManager->AddNtupleRow();
 
 	(*pmtHC)[0]->ResetPMTPhotonCount();
+	(*pmtHC)[0]->ResetPMTPhotoElectronCount();
 	(*pmtHC)[0]->ResetPhotoElectricPMTPhotonTime();
 
 }

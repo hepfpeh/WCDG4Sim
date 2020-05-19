@@ -18,6 +18,7 @@ G4ThreadLocal G4Allocator<WCDtankHit>* WCDtankHitAllocator=0;
 WCDtankHit::WCDtankHit()
 {
 	WCDtankTotalPMTPhotons = 0;
+	WCDtankTotalPMTPhotoElectrons = 0;
 //	WCDtankPhotoElectricPMTPhotonsTime = new std::vector<G4double>;
 	WCDtankPhotoElectricPMTPhotonsTime = 0;
 //	G4cout << "WCDtankHit()" << G4endl;
@@ -39,6 +40,7 @@ WCDtankHit::~WCDtankHit()
 WCDtankHit::WCDtankHit(const WCDtankHit &right) : G4VHit()
 {
 	WCDtankTotalPMTPhotons	= right.WCDtankTotalPMTPhotons;
+	WCDtankTotalPMTPhotoElectrons	= right.WCDtankTotalPMTPhotoElectrons;
 	WCDtankPhotoElectricPMTPhotonsTime		= right.WCDtankPhotoElectricPMTPhotonsTime;
 }
 
@@ -46,6 +48,7 @@ WCDtankHit::WCDtankHit(const WCDtankHit &right) : G4VHit()
 
 const WCDtankHit& WCDtankHit::operator=(const WCDtankHit &right){
 	WCDtankTotalPMTPhotons	= right.WCDtankTotalPMTPhotons;
+	WCDtankTotalPMTPhotoElectrons	= right.WCDtankTotalPMTPhotoElectrons;
 	WCDtankPhotoElectricPMTPhotonsTime		= right.WCDtankPhotoElectricPMTPhotonsTime;
   return *this;
 }

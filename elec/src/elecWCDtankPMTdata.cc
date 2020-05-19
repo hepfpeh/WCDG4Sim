@@ -97,6 +97,7 @@ WCDtankEventInfo elecWCDtankPMTdata::GetEventInfo( void )
 	tmp.Track_Length			= Track_Length;
 	tmp.Cherenkov_Photon_Count	= Cherenkov_Photon_Count;
 	tmp.PMT_Photon_Count		= PMT_Photon_Count;
+	tmp.PMT_PhotoElectron_Count = PulseTimeData->size();
 	
 	return tmp;
 }

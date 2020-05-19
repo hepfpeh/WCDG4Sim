@@ -106,6 +106,7 @@ void ComputePulseParameters(const char* inFileName, const char* outFileName)
 	Double_t 	Track_Length;
 	Int_t	 	Cherenkov_Photon_Count;
 	Int_t	 	PMT_Photon_Count;
+	Int_t	 	PMT_PhotoElectron_Count;
 
     std::vector< Double_t > *Event_Data = 0;
 
@@ -118,6 +119,7 @@ void ComputePulseParameters(const char* inFileName, const char* outFileName)
 	inData->SetBranchAddress("Track_Length",              &Track_Length);
 	inData->SetBranchAddress("Cherenkov_Photon_Count",    &Cherenkov_Photon_Count);
 	inData->SetBranchAddress("PMT_Photon_Count",          &PMT_Photon_Count);
+	inData->SetBranchAddress("PMT_PhotoElectron_Count",   &PMT_PhotoElectron_Count);
     inData->SetBranchAddress("Digitalized_Data",          &Event_Data);
 
     Long_t NEntries = inData->GetEntries();
@@ -157,6 +159,7 @@ void ComputePulseParameters(const char* inFileName, const char* outFileName)
 	outData->Branch("Track_Length",              &Track_Length);
 	outData->Branch("Cherenkov_Photon_Count",    &Cherenkov_Photon_Count);
 	outData->Branch("PMT_Photon_Count",          &PMT_Photon_Count);
+	outData->Branch("PMT_PhotoElectron_Count",   &PMT_PhotoElectron_Count);
     outData->Branch("Digitalized_Data",          &Event_Data);
     outData->Branch("Pulse_Baseline",            &Baseline);
     outData->Branch("Pulse_Area",                &Area);

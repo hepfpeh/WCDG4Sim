@@ -31,6 +31,7 @@ typedef struct WCDtankEventInfo_s {
 	Double_t 				Track_Length;
 	Int_t	 				Cherenkov_Photon_Count;
 	Int_t	 				PMT_Photon_Count;
+	Int_t					PMT_PhotoElectron_Count;
 } WCDtankEventInfo;
 
 typedef struct elecSignalPoint_s { 

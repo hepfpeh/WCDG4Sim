@@ -28,17 +28,21 @@ class WCDtankHit : public G4VHit
     inline void operator delete(void *aHit);
 
     inline void IncPMTPhotonCount(){WCDtankTotalPMTPhotons++;}
+    inline void IncPMTPhotoElectronCount(){WCDtankTotalPMTPhotoElectrons++;}
     inline void AddPhotoElectricPMTPhotonTime( G4double Time ){WCDtankPhotoElectricPMTPhotonsTime->push_back( Time );}
     inline void SetPhotoElectricPMTPhotonTime( std::vector<G4double>* aVector ){ WCDtankPhotoElectricPMTPhotonsTime = aVector;}
     inline G4int GetPMTPhotonCount(){return WCDtankTotalPMTPhotons;}
+    inline G4int GetPMTPhotoElectronCount(){return WCDtankTotalPMTPhotoElectrons;}
     inline G4int GetPhotoElectricPMTPhotonTimeSize(){return WCDtankPhotoElectricPMTPhotonsTime->size();}
     inline std::vector<G4double>* GetPhotoElecticPMTPhotonTime(){return WCDtankPhotoElectricPMTPhotonsTime;}
     inline void ResetPMTPhotonCount(){WCDtankTotalPMTPhotons=0;}
+    inline void ResetPMTPhotoElectronCount(){WCDtankTotalPMTPhotoElectrons=0;}
     inline void ResetPhotoElectricPMTPhotonTime(){WCDtankPhotoElectricPMTPhotonsTime->clear();}
 
   private:
 
     G4int 					WCDtankTotalPMTPhotons;
+    G4int           WCDtankTotalPMTPhotoElectrons;
     std::vector<G4double>	*WCDtankPhotoElectricPMTPhotonsTime;
 
 };

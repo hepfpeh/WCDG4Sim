@@ -52,6 +52,7 @@ void AnalizeData(const char* FileName)
 	Double_t 	Track_Length;
 	Int_t	 	Cherenkov_Photon_Count;
 	Int_t	 	PMT_Photon_Count;
+	Int_t	 	PMT_PhotoElectron_Count;
     std::vector< Double_t > *Event_Data = 0;
     Double_t    Baseline;
     Double_t    Area;
@@ -67,6 +68,7 @@ void AnalizeData(const char* FileName)
 	Data->SetBranchAddress("Track_Length",              &Track_Length);
 	Data->SetBranchAddress("Cherenkov_Photon_Count",    &Cherenkov_Photon_Count);
 	Data->SetBranchAddress("PMT_Photon_Count",          &PMT_Photon_Count);
+	Data->SetBranchAddress("PMT_PhotoElectron_Count",   &PMT_PhotoElectron_Count);
     Data->SetBranchAddress("Digitalized_Data",          &Event_Data);
     Data->SetBranchAddress("Pulse_Baseline",            &Baseline);
     Data->SetBranchAddress("Pulse_Area",                &Area);
@@ -81,6 +83,7 @@ void AnalizeData(const char* FileName)
     // TH2D *eRtvsA = new TH2D("HeRA","Rise time vs Amplitud for electrons",200,0,15,200,0,8200);
     // TH2D *mRtvsA = new TH2D("HmRA","Rise time vs Amplitud for muons",200,0,15,200,0,8200);
     
+    // TH1D *aHist = new TH1D("H1D","A hist",200,0,0);
     TH2D *aHist = new TH2D("H2D","A hist",200,0,0,200,0,0);
 
     for( Long_t i = 0; i< NEntries; i++)
@@ -88,21 +91,27 @@ void AnalizeData(const char* FileName)
 
         Data->GetEntry(i);
 
-        // if(PDG_Code == 11 )
-        // {
-        //     eRisetime->Fill(Risetime);
-        //     eRtvsA->Fill(Risetime,Amplitud);
-        // }
-        // else
-        // {
-        //     mRisetime->Fill(Risetime);
-        //     mRtvsA->Fill(Risetime,Amplitud);
-        // }
+        // if(Track_Length < 780 )
+        //     if(Amplitud < 8100 )
+        //     {
+        //         if(PDG_Code == 11 )
+        //         {
+        //             eRisetime->Fill(Risetime);
+        //             eRtvsA->Fill(Risetime,Amplitud);
+        //         }
+        //         else
+        //         {
+        //             mRisetime->Fill(Risetime);
+        //             mRtvsA->Fill(Risetime,Amplitud);
+        //         }
+        //     }
 
-        if(Track_Length < 780 )
+        // if(Track_Length < 780 )
             if(Amplitud < 8100 )
-                if(PDG_Code == 13)
-                    aHist->Fill(PMT_Photon_Count,Area);
+        //         if(PDG_Code == 13)
+                    aHist->Fill( PMT_PhotoElectron_Count, Area );
+
+        // std::cout<< i << " " << ( PMT_PhotoElectron_Count + 0.0 )/PMT_Photon_Count << " " << PMT_PhotoElectron_Count << " " << PMT_Photon_Count << std::endl;
     }
 
     

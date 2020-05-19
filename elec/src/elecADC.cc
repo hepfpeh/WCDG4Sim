@@ -90,6 +90,7 @@ void elecADC::DigitalizeVoltageSignal( elecVoltageSignal* VoltageSignalData, ele
 		ADC_Output->Branch("Track_Length",&(PMTEventInfo->Track_Length));
 		ADC_Output->Branch("Cherenkov_Photon_Count",&(PMTEventInfo->Cherenkov_Photon_Count));
 		ADC_Output->Branch("PMT_Photon_Count",&(PMTEventInfo->PMT_Photon_Count));
+		ADC_Output->Branch("PMT_PhotoElectron_Count",&(PMTEventInfo->PMT_PhotoElectron_Count));
 		ADC_Output->Branch("Digitalized_Data",&ADC_array);
 
  		ADC_cbuffer = new boost::circular_buffer<Double_t>( ADC_Samples_per_Pulse );

@@ -71,9 +71,9 @@ G4bool WCDtankSensitiveDetector::ProcessHits(G4Step* theStep,G4TouchableHistory*
 	G4double ArrivalTime = theTrack->GetGlobalTime();
 
 
-//	G4ParticleDefinition* particleType = theTrack->GetDefinition();
-//	G4String ParticleName = particleType->GetParticleName();
-//	G4cout<< hit->GetPhotonCount() << "\t" << ParticleName << "\t" << G4BestUnit(ParticleEnergy,"Energy");
+	// G4ParticleDefinition* particleType = theTrack->GetDefinition();
+	// G4String ParticleName = particleType->GetParticleName();
+	// G4cout<< hit->GetPMTPhotonCount() << "\t" << ParticleName << "\t" << G4BestUnit(ParticleEnergy,"Energy");
 
 	/*
 	 * Implementación de la eficiencia cuántica en el PMT
@@ -114,14 +114,15 @@ G4bool WCDtankSensitiveDetector::ProcessHits(G4Step* theStep,G4TouchableHistory*
 
 	G4double Nrand = G4UniformRand();
 
-//	G4cout << "\tQE: " << QuantumEfficiency;
+	// G4cout << "\tQE: " << QuantumEfficiency;
 
 	if ( Nrand < QuantumEfficiency ){
 		hit->AddPhotoElectricPMTPhotonTime( ArrivalTime );
-//		G4cout << "\tHit counted";
+		hit->IncPMTPhotoElectronCount();
+		// G4cout << "\tHit counted";
 	}
 
-//	G4cout << G4endl;
+	// G4cout << G4endl;
 
   return true;
 }

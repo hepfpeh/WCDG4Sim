@@ -23,13 +23,13 @@ WCDtankRunAction::WCDtankRunAction()
 //	G4dVectorPointer = &G4dVector;
 //	G4dVectorPointer = 0;
 
-	//G4cout << "Pointer: " << G4dVectorPointer << G4endl;
+	// G4cout << "Pointer: " << G4dVectorPointer << G4endl;
 	// Create analysis manager
 	// The choice of analysis technology is done via selectin of a namespace
 	// in B4Analysis.hh
 	G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
-	analysisManager->SetNtupleMerging(true);
-	void SetNtupleRowWise(G4bool rowWise);
+	// analysisManager->SetNtupleMerging(true);
+	// void SetNtupleRowWise(G4bool rowWise);
 	//G4cout << "Using " << analysisManager->GetType() << G4endl;
 
 	// Create directories
@@ -56,6 +56,7 @@ WCDtankRunAction::WCDtankRunAction()
 	analysisManager->CreateNtupleDColumn("Track_Length");
 	analysisManager->CreateNtupleIColumn("Cherenkov_Photon_Count");
 	analysisManager->CreateNtupleIColumn("PMT_Photon_Count");
+	// analysisManager->CreateNtupleIColumn("PMT_PhotoElectric_Count");
 //	analysisManager->CreateNtupleDColumn("Photon_Arrival_Time", G4dVector );
 	analysisManager->CreateNtupleDColumn("PMT_PhotoElectric_Photons_Time", *G4dVectorPointer );
 	analysisManager->FinishNtuple();
