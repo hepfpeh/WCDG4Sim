@@ -1,4 +1,4 @@
-# Develop README
+# Hunapu-0.3 README
 
 Proyecto de simulación del sistema de detección de particulas generadas por rayos cósmicos en la atmósfera, dentro del marco de la colaboración LAGO (http://lagoproject.org/).
 
