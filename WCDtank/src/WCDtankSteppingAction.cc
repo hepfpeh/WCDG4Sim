@@ -58,7 +58,7 @@ void WCDtankSteppingAction::UserSteppingAction(const G4Step* theStep)
 	G4double stepLength = 0.0;
 
 	// check if the particle is the primary particle.
-	if ( theStep->GetTrack()->GetDefinition()->GetPDGEncoding() == EventAction->GetParticlePDGcode() ) {
+	if ( theStep->GetTrack()->GetTrackID() == 1 ) {
 		stepLength = theStep->GetStepLength();
 		edepStep = theStep->GetTotalEnergyDeposit();
 	}

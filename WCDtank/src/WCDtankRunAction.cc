@@ -20,23 +20,15 @@ WCDtankRunAction::WCDtankRunAction()
 : G4UserRunAction()
 {
 	G4dVectorPointer = new std::vector<G4double>;
-//	G4dVectorPointer = &G4dVector;
-//	G4dVectorPointer = 0;
 
-	// G4cout << "Pointer: " << G4dVectorPointer << G4endl;
 	// Create analysis manager
 	// The choice of analysis technology is done via selectin of a namespace
 	// in B4Analysis.hh
 	G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
-	// analysisManager->SetNtupleMerging(true);
-	// void SetNtupleRowWise(G4bool rowWise);
-	//G4cout << "Using " << analysisManager->GetType() << G4endl;
+	
 
-	// Create directories
-	//analysisManager->SetHistoDirectoryName("histograms");
-	//analysisManager->SetNtupleDirectoryName("ntuple");
 	analysisManager->SetVerboseLevel(1);
-	analysisManager->SetFirstHistoId(1);
+	analysisManager->SetFirstHistoId(0);
 
 	// Book histograms, ntuple
 	//
@@ -44,23 +36,16 @@ WCDtankRunAction::WCDtankRunAction()
 	// Creating histograms
 	//analysisManager->CreateH1("1","Photon count at PMT", 40, 0., 400);
 
-	// Creating ntuple
-	//
 
-	analysisManager->CreateNtuple("WCDtank", "Data");
-	analysisManager->CreateNtupleIColumn("PDG_Code");
-	analysisManager->CreateNtupleDColumn("Energy");
-	analysisManager->CreateNtupleDColumn("Zenith_angle");
-	analysisManager->CreateNtupleIColumn("Direction");
-	analysisManager->CreateNtupleDColumn("Deposited_Energy");
-	analysisManager->CreateNtupleDColumn("Track_Length");
-	analysisManager->CreateNtupleIColumn("Cherenkov_Photon_Count");
-	analysisManager->CreateNtupleIColumn("PMT_Photon_Count");
-	// analysisManager->CreateNtupleIColumn("PMT_PhotoElectric_Count");
-//	analysisManager->CreateNtupleDColumn("Photon_Arrival_Time", G4dVector );
-	analysisManager->CreateNtupleDColumn("PMT_PhotoElectric_Photons_Time", *G4dVectorPointer );
-	analysisManager->FinishNtuple();
+	// analysisManager->CreateNtuple("WCDtank", "Data");
+	// analysisManager->CreateNtupleIColumn("PDG_Code");
+	// analysisManager->CreateNtupleIColumn("Direction");
+	// analysisManager->FinishNtuple();
 
+	analysisManager->CreateH1("Edep","Deposited Energy",200,60.0,140*MeV);
+	analysisManager->CreateH1("Tlen","Track Length",200,400.0,800*mm);
+	analysisManager->CreateH1("ChFC","Cherenkov Photon Count",200,16000,25000);
+	analysisManager->CreateH1("PMTFC","PMT Photoelectron Count",200,6000,14000);
 
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

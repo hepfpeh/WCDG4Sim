@@ -4,7 +4,7 @@ Proyecto de simulación del sistema de detección de particulas generadas por ra
 
 La simulación consta de dos partes:
 ## 1. **WCDtankSim**
-Simulación en Geant4 (10.3) del tanque de prueba de la USAC. Este proyecto está basado en los ejemplos B1, B4, B5, OpNovice, LXe y el trabajo de Amilcar roca. Esta simulación contiene:
+Simulación en Geant4 (10.4) del tanque de prueba de la USAC. Este proyecto está basado en los ejemplos B1, B4, B5, OpNovice, LXe y el trabajo de Amilcar roca. Esta simulación contiene:
 * *Geometría del tanque WCD*
   * El "mundo" es un cubo de aire.
   * Se utiliza un tubo de tyvek solido que es llenado con un tubo de agua de dimensiones tales que el resultado es una capa de tyvek rodeando el agua.
@@ -24,7 +24,7 @@ Simulación en Geant4 (10.3) del tanque de prueba de la USAC. Este proyecto est�
 	* Indica si la trayectoria es "vertical".
 	* Energía depositada en el agua.
 	* Distancia viajada por la partícula primaria dentro del agua.
-	* Conteo de fotones que alcanzan el PMT.
+	* Conteo de fotoelectrones que se generan en el PMT.
 * *Pendientes de implementar*
   * Material plástico del tanque.
   * Distribución de energía de la partícula incidente.
