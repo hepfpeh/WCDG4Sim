@@ -1,4 +1,6 @@
-# Develop README
+# pulse_shape README
+
+Esta es una rama creada para analizar el proceso de formación del pulso y determinar los factores que lo influyen.
 
 Proyecto de simulación del sistema de detección de particulas generadas por rayos cósmicos en la atmósfera, dentro del marco de la colaboración LAGO (http://lagoproject.org/).
 
