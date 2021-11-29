@@ -46,6 +46,7 @@ WCDtankRunAction::WCDtankRunAction()
 	analysisManager->CreateH1("Tlen","Track Length",200,400.0,800*mm);
 	analysisManager->CreateH1("ChFC","Cherenkov Photon Count",200,16000,25000);
 	analysisManager->CreateH1("PMTFC","PMT Photoelectron Count",200,6000,14000);
+	analysisManager->CreateH1("PMTCT","PMT Photoelectron Creation time",200,0,60*ns);
 
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

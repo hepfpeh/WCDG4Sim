@@ -116,9 +116,13 @@ G4bool WCDtankSensitiveDetector::ProcessHits(G4Step* theStep,G4TouchableHistory*
 
 	// G4cout << "\tQE: " << QuantumEfficiency;
 
+	// get analysis manager
+	G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
+
 	if ( Nrand < QuantumEfficiency ){
 		hit->AddPhotoElectricPMTPhotonTime( ArrivalTime );
 		hit->IncPMTPhotoElectronCount();
+		analysisManager->FillH1(4, ArrivalTime);
 		// G4cout << "\tHit counted";
 	}
 
