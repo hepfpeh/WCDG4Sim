@@ -43,8 +43,8 @@ WCDtankPrimaryGeneratorAction::WCDtankPrimaryGeneratorAction()
     = particleTable->FindParticle(particleName="mu-");
   fParticleGun->SetParticleDefinition(particle);
   fParticleGun->SetParticleMomentumDirection(G4ThreeVector(0.0,0.0,-1.0));
-  fParticleGun->SetParticlePosition(G4ThreeVector(0.11*m,0.11*m,2.0*m));
-  fParticleGun->SetParticleEnergy(500.0*MeV);
+  fParticleGun->SetParticlePosition(G4ThreeVector(0.0*m,0.0*m,2.0*m));
+  fParticleGun->SetParticleEnergy(4.0*GeV);
 
   //create a messenger for this class
   fGunMessenger = new WCDtankPrimaryGeneratorMessenger(this);

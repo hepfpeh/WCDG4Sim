@@ -42,10 +42,10 @@ WCDtankRunAction::WCDtankRunAction()
 	// analysisManager->CreateNtupleIColumn("Direction");
 	// analysisManager->FinishNtuple();
 
-	analysisManager->CreateH1("Edep","Deposited Energy",200,60.0,140*MeV);
-	analysisManager->CreateH1("Tlen","Track Length",200,400.0,800*mm);
-	analysisManager->CreateH1("ChFC","Cherenkov Photon Count",200,16000,25000);
-	analysisManager->CreateH1("PMTFC","PMT Photoelectron Count",200,6000,14000);
+	analysisManager->CreateH1("Edep","Deposited Energy",200,78.0,91*MeV);
+	analysisManager->CreateH1("Tlen","Track Length",200,480.0,492*mm);
+	analysisManager->CreateH1("ChFC","Cherenkov Photon Count",200,16400,17800);
+	analysisManager->CreateH1("PMTFC","PMT Photoelectron Count",200,4000,12000);
 	analysisManager->CreateH1("PMTCT","PMT Photoelectron Creation time",200,0,60*ns);
 
 }
